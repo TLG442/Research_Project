@@ -1,7 +1,4 @@
-flask
-flask_sqlalchemy
-flask_migrate
-tensorflow
-numpy
-pandas
-scikit-learn
+boto3
+Flask         # For the Flask web framework       
+botocore==1.31.15      
+Werkzeug==2.3.7        # For request and response utilities in Flask
