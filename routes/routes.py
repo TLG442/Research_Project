@@ -1,5 +1,5 @@
 from flask import request, jsonify
-from model import predict_leak, WINDOW_SIZE
+from model import predict_leak, WINDOW_SIZE , predict_forecast
 from .firebase import get_firestore_client
 from firebase_admin import firestore
 
@@ -11,10 +11,10 @@ def create_routes(app):
     Registers all routes to the Flask app.
     """
 
-    @app.route('/predict', methods=['POST'])
+    @app.route('/classify', methods=['POST'])
     def predict():
         """
-        Endpoint to predict leaks based on input values.
+        Endpoint to classify leaks based on input values.
         """
         try:
             # Parse input data from the request
@@ -35,6 +35,31 @@ def create_routes(app):
 
         except Exception as e:
             return jsonify({"error": str(e)}), 500
+        
+    @app.route('/forecast', methods=['POST'])
+    def forecast():
+        """
+        Endpoint to forecast the next value based on input values using the regression model.
+        """
+        try:
+            # Parse input data from the request
+            data = request.json
+            if not data or 'values' not in data:
+                return jsonify({"error": "Invalid input, 'values' key missing."}), 400
+
+            input_values = data['values']
+
+            # Validate input length
+            if len(input_values) != WINDOW_SIZE:
+                return jsonify({"error": f"Input length must be {WINDOW_SIZE}."}), 400
+
+            # Perform forecasting
+            result = predict_forecast(input_values)
+            return jsonify(result)
+
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
 
     @app.route('/send-water-data', methods=['POST'])
     def send_water_data():
