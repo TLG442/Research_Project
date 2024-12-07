@@ -40,9 +40,9 @@ def get_weather_data(api_key, lat, lon):
 
 
 # Example city coordinates for Kandy, Sri Lanka
-lat = 7.17
-lon = 80.38
-api_key = "258a66e060386b1c1f1117bd0f830107"  # Replace with your OpenWeatherMap API key
+lat = 0
+lon = 0
+api_key = "0"
 
 # Fetch weather data
 weather_data = get_weather_data(api_key, lat, lon)
