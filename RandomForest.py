@@ -98,4 +98,4 @@ print("Saving the model and scaler...")
 joblib.dump(best_model, 'wind_power_model.pkl')
 joblib.dump(scaler, 'scaler.pkl')
 
-print("Process completed successfully!")
+print("Process completed successfully!.")
