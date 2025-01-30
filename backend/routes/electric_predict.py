@@ -1,5 +1,5 @@
 from flask import request, jsonify
-from services.model_service import predict_with_model
+from services.electric_model_service import predict_with_model
 
 def predict():
     try:
