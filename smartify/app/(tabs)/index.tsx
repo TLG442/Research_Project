@@ -1,9 +1,24 @@
-import React from 'react';
-import { View, Text, StyleSheet, Switch, Image, TouchableOpacity } from 'react-native';
+import React, { useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, Switch, Image, TouchableOpacity , Animated  } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context'; // For handling safe areas
+import Svg, { Path } from 'react-native-svg';
+
 
 const HomeScreen = () => {
   const insets = useSafeAreaInsets();
+  const waveAnim = useRef(new Animated.Value(0)).current; // Initial position
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(waveAnim, {
+        toValue: -1440, // Move wave to the left (adjust as needed for smoother transition)
+        duration: 1000, // Duration of one loop cycle (adjust for smoother animation)
+     
+       // Correct easing function
+        useNativeDriver: true, // Optimize for performance
+      })
+    ).start();
+  }, []);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
@@ -15,7 +30,12 @@ const HomeScreen = () => {
           <Text style={styles.userName}>Tharuka</Text>
         </View>
         <View style={styles.headerIcons}> {/* Container for icons */}
-         
+          <TouchableOpacity>
+            <Image source={require('../../assets/images/bell.png')} style={styles.icon} /> {/* Replace with your bell icon path */}
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Image source={require('../../assets/images/settings_iccon-removebg-preview.png')} style={styles.icon} /> {/* Replace with your settings icon path */}
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -30,13 +50,19 @@ const HomeScreen = () => {
           </View>
         </View>
         {/* Wave Image - You'll need to adjust the path */}
-      
+        <View style={styles.waveContainer}>
+        <Image
+    source={require('../../assets/images/wave_icon.jpg')} // Path to your wave GIF
+    style={styles.waveImage} // Custom styling to adjust the size
+  /> 
+        </View>
       </View>
 
       {/* Leak Status Card */}
-      <View style={styles.card}>
-        <Text style={styles.leakStatus}>Leak status: No leak in the system</Text>
-      </View>
+      <View style={styles.waveContainer}>
+  
+</View>
+
 
       {/* Insights Button */}
       <TouchableOpacity style={styles.insightsButton}>
@@ -44,14 +70,7 @@ const HomeScreen = () => {
       </TouchableOpacity>
       <Text style={styles.insightsLabel}>Track your water usage and detect patterns over time.</Text>
 
-      {/* Navigation Bar */}
-      <View style={styles.navBar}>
-        <TouchableOpacity style={styles.navButton}>
-         {/* Replace with your home icon path */}
-          <Text style={styles.navButtonText}>Home</Text>
-        </TouchableOpacity>
-        {/* Add other navigation buttons here */}
-      </View>
+     
     </View>
   );
 };
@@ -59,7 +78,7 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f0f0', // Light gray background
+    backgroundColor: 'white', // Light gray background
     paddingHorizontal: 20, // Consistent horizontal padding
   },
   header: {
@@ -83,6 +102,17 @@ const styles = StyleSheet.create({
   },
   headerIcons: {
     flexDirection: 'row', // Icons in a row
+  },
+  
+  waveContainer: {
+    height: 100, // Height of the wave area
+    overflow: 'hidden', // Hide the wave as it moves out of the container
+  },
+  wave: {
+    width: 400, // Width of the wave (should be larger than container)
+    height: 100, // Height of the wave
+    backgroundColor: 'lightblue', // Color of the wave
+    // You can use a more complex wave shape with SVG or images if needed.
   },
   icon: {
     width: 30,
@@ -134,7 +164,7 @@ const styles = StyleSheet.create({
   },
   insightsButton: {
     backgroundColor: '#007AFF', // Blue button
-    borderRadius: 8,
+    borderRadius: 23,
     paddingVertical: 12,
     paddingHorizontal: 20,
     alignItems: 'center',
