@@ -51,10 +51,7 @@ const HomeScreen = () => {
         </View>
         {/* Wave Image - You'll need to adjust the path */}
         <View style={styles.waveContainer}>
-        <Image
-    source={require('../../assets/images/wave_icon.jpg')} // Path to your wave GIF
-    style={styles.waveImage} // Custom styling to adjust the size
-  /> 
+     
         </View>
       </View>
 
