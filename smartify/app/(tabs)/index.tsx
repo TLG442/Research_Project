@@ -160,13 +160,16 @@ const styles = StyleSheet.create({
     textAlign: 'center', // Center the text
   },
   insightsButton: {
-    backgroundColor: '#007AFF', // Blue button
-    borderRadius: 23,
+    backgroundColor: '#34baeb', // Blue button
+    borderRadius: 25,
     paddingVertical: 12,
     paddingHorizontal: 20,
     alignItems: 'center',
     marginBottom: 10,
+    width: 400,
+    alignSelf: 'center', // Centers the button horizontally
   },
+  
   insightsButtonText: {
     color: 'white',
     fontSize: 18,
