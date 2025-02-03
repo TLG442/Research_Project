@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Switch, Image, TouchableOpacity , Animated  } f
 import { useSafeAreaInsets } from 'react-native-safe-area-context'; // For handling safe areas
 import Svg, { Path } from 'react-native-svg';
 
-
+import { useRouter } from 'expo-router';
 const HomeScreen = () => {
   const insets = useSafeAreaInsets();
   const waveAnim = useRef(new Animated.Value(0)).current; // Initial position
@@ -19,7 +19,7 @@ const HomeScreen = () => {
       })
     ).start();
   }, []);
-
+  const router = useRouter();
   return (
     <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
 
@@ -63,7 +63,7 @@ const HomeScreen = () => {
 
       {/* Insights Button */}
       <TouchableOpacity style={styles.insightsButton}>
-        <Text style={styles.insightsButtonText}>Water usage Insights</Text>
+        <Text style={styles.insightsButtonText}  onPress={() => router.push('../water-usag-insights')}>Water usage Insights</Text>
       </TouchableOpacity>
       <Text style={styles.insightsLabel}>Track your water usage and detect patterns over time.</Text>
 
