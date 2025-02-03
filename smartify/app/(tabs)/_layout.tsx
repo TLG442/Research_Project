@@ -1,9 +1,8 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
+import { Image, Platform } from 'react-native';
 
 import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -18,26 +17,45 @@ export default function TabLayout() {
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
-          },
-          default: {},
-        }),
+        tabBarShowLabel: false, // Remove text labels
+        tabBarStyle: {
+          position: 'absolute',
+          bottom: 20,
+          width: '90%', // Ensures left and right spacing
+          marginHorizontal: '5%', // Centers the tab bar
+          borderRadius: 25, // Rounded corners
+          backgroundColor: '#A9A9A9',
+          ...Platform.select({
+            ios: {
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.25,
+              shadowRadius: 3.84,
+            },
+            android: {
+              elevation: 5, // Shadow for Android
+            },
+          }),
+        },
       }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <Image
+              source={
+                focused
+                  ? require('../../assets/images/Home_icon.png') // Active icon
+                  : require('../../assets/images/Home_icon.png') // Inactive icon
+              }
+              style={{
+                width: 28,
+                height: 28,
+                tintColor: color, // Apply color tint if needed
+              }}
+              resizeMode="contain"
+            />
+          ),
         }}
       />
     </Tabs>
