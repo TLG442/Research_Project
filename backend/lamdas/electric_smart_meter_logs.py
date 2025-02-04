@@ -71,3 +71,15 @@ def getSmartMeterLogs(meterId):
     except:
         logger.exception('Error retrieving logs')
         return buildResponse(500, {'Operation': 'GET', 'Message': 'Failed to retrieve logs'}) 
+
+def getSmartMeterLogsbyDate(meterId, start_date, end_date):
+    try:
+        response = table.query(
+            KeyConditionExpression=Key('meterId').eq(meterId) & Key('date').between(start_date, end_date),
+            ScanIndexForward=False  # Latest logs first
+        )
+        logs = response.get('Items', [])
+        return buildResponse(200, logs)
+    except Exception as e:
+        logger.exception(f"Error retrieving logs for meterId: {meterId} from {start_date} to {end_date}")
+        return buildResponse(500, {'Operation': 'GET', 'Message': 'Failed to fetch logs', 'Error': str(e)})
