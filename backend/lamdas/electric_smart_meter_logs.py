@@ -61,3 +61,13 @@ def saveLogs(requestBody):
         return buildResponse(500,{'Operation': 'SAVE', 'Message': 'Failed to save logs'})
     
 
+def getSmartMeterLogs(meterId):
+    try:
+        response = table.query(
+            KeyConditionExpression=Key('meterId').eq(meterId)
+        )
+        result = response['Items']
+        return buildResponse(200, result)
+    except:
+        logger.exception('Error retrieving logs')
+        return buildResponse(500, {'Operation': 'GET', 'Message': 'Failed to retrieve logs'}) 
