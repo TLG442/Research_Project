@@ -18,7 +18,7 @@ health_check_path = '/health'
 smart_meter = '/smart-meter'
 
 
-def lamda_handler(event,context):
+def lambda_handler(event,context):
     logger.info(f"Received event: {json.dumps(event)}")
     http_method = event['httpMethod']
     path = event['path']
