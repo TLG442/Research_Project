@@ -75,7 +75,7 @@ def saveLogs(requestBody):
 
         # Retrieve the latest log for this meterId and month
         prev_response = table.query(
-            KeyConditionExpression=Key('meterId').eq(meter_id) & Key('month').eq(current_month),
+            KeyConditionExpression=Key('meterId').eq(meter_id) & Key('date').eq(current_month),
             ScanIndexForward=False,  # Get the latest entry first
             Limit=1
         )
@@ -93,7 +93,7 @@ def saveLogs(requestBody):
         response = table.put_item(
             Item={
                 'meterId': meter_id,
-                'month': current_month,
+                'date': current_month,
                 'totalPowerConsumption': total_power,
                 'timestamp': datetime.datetime.now().isoformat(),  # Optional, for logging purposes
             }
