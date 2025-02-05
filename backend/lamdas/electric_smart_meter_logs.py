@@ -49,6 +49,16 @@ def buildResponse(statusCode,body=None):
 
 def saveLogs(requestBody):
     try:
+        # Validate required fields
+        required_fields = ["meterId", "powerConsumption"]
+        missing_fields = [field for field in required_fields if field not in requestBody or requestBody[field] in [None, ""]]
+
+        if missing_fields:
+            return buildResponse(400, {
+                'Operation': 'SAVE',
+                'Message': f'Missing required fields: {", ".join(missing_fields)}'
+            })
+
         table.put_item(Item=requestBody)
         body = {
             'Operation': 'SAVE',
