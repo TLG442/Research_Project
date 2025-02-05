@@ -1,10 +1,13 @@
 import json
 import boto3
 from flask import request, jsonify
+from services.dynamodb_service import put_item
+# Initialize AWS Lambda client with a specific region
+lambda_client = boto3.client('lambda', region_name='eu-north-1')  # Replace 'your-region' with the actual AWS region
+from config import create_dynamodb_client
 
-# Initialize AWS Lambda client
-lambda_client = boto3.client('lambda')
-
+# Initialize DynamoDB client
+dynamodb = create_dynamodb_client()
 def log_water_usage():
     try:
         # Get JSON data from request
