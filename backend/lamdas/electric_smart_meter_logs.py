@@ -3,6 +3,7 @@ import json
 import logging
 from electric_custom_encoder import CustomEncoder
 from boto3.dynamodb.conditions import Key
+import datetime
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -68,6 +69,16 @@ def saveLogs(requestBody):
                 'Operation': 'SAVE',
                 'Message': 'Invalid powerConsumption value. It must be a non-negative number.'
             })
+        
+        # Get the current month in YYYY-MM format
+        current_month = datetime.datetime.now().strftime("%Y-%m")
+
+        # Retrieve the latest log for this meterId and month
+        prev_response = table.query(
+            KeyConditionExpression=Key('meterId').eq(meter_id) & Key('month').eq(current_month),
+            ScanIndexForward=False,  # Get the latest entry first
+            Limit=1
+        )
 
         table.put_item(Item=requestBody)
         body = {
