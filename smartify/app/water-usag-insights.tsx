@@ -28,8 +28,8 @@ export default function WaterUsageInsights() {
         </View>
 
         <View style={styles.insightsContainer}>
-          <Canvas style={{ width: '100%', height: 200 }}>
-            <Rect x={0} y={0} width={300} height={200} color="#f0f0f0" />
+          <Canvas style={{ width: '100%', height: 400 }}>
+            <Rect x={0} y={0} width={420} height={200} color="#f0f0f0" />
             <Group>
               {waterUsageData.map((value, index) => (
                 <RoundedRect
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   insightsContainer: {
-    flex: 1,
+    flex: 2,
     backgroundColor: 'white',
     marginTop: -30,
     borderTopLeftRadius: 25,
