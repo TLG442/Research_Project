@@ -8,21 +8,25 @@ table = dynamodb.Table('water_usage_data')  # Replace with your DynamoDB table n
 
 def lambda_handler(event, context):
     try:
-        # Parse the input JSON from the API Gateway event
-        body = json.loads(event['body'])
+        print(f"Received event: {json.dumps(event)}")  # Debugging: Log the full event
 
-        # Extract water flow and other relevant details from the body
-        water_flow = body.get('water_flow')  # in liters per second (L/s) or any unit you use
+        # Check if 'body' is in the event, handle it accordingly
+        body = event.get('body', event)  # If 'body' doesn't exist, treat the whole event as the body
+        if isinstance(body, str):  # If body is a string, parse it
+            body = json.loads(body)
+
+        # Extract water flow
+        water_flow = body.get('water_flow')  # in liters per second
         timestamp = body.get('timestamp', str(datetime.utcnow()))  # Use current UTC timestamp if not provided
 
-        # Ensure water flow is provided
-        if not water_flow:
+        # Ensure water_flow is present
+        if water_flow is None:
             return {
                 'statusCode': 400,
                 'body': json.dumps('Water flow is a required field.')
             }
 
-        # Ensure the timestamp is valid (it could be optional if not provided in the request)
+        # Validate timestamp format
         try:
             timestamp = datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%SZ') if timestamp else datetime.utcnow()
         except ValueError:
@@ -31,11 +35,11 @@ def lambda_handler(event, context):
                 'body': json.dumps('Invalid timestamp format. Use ISO 8601 format (YYYY-MM-DDTHH:MM:SSZ).')
             }
 
-        # Put the item into DynamoDB
+        # Insert into DynamoDB
         response = table.put_item(
             Item={
-                'water_flow': water_flow,
-                'timestamp': timestamp.isoformat(),  # Store timestamp in ISO format
+                'Flow_data': str(water_flow),  # Store as string if necessary
+                'timestamp': timestamp.isoformat(),
             }
         )
 
@@ -46,8 +50,7 @@ def lambda_handler(event, context):
         }
 
     except Exception as e:
-        # Log error and return failure response
-        print(f"Error: {str(e)}")
+        print(f"Error: {str(e)}")  # Log error
         return {
             'statusCode': 500,
             'body': json.dumps(f"Error logging water flow: {str(e)}")
