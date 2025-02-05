@@ -79,18 +79,37 @@ def saveLogs(requestBody):
             ScanIndexForward=False,  # Get the latest entry first
             Limit=1
         )
+        prev_log = prev_response.get('Items', [])
 
-        table.put_item(Item=requestBody)
-        body = {
+        # If previous log exists, calculate total power consumption
+        if prev_log:
+            prev_power = prev_log[0].get('totalPowerConsumption', 0)
+            total_power = prev_power + current_power
+        else:
+            # If no previous log, set the current power as the total consumption
+            total_power = current_power
+        
+        # Save the updated log with total power consumption
+        response = table.put_item(
+            Item={
+                'meterId': meter_id,
+                'month': current_month,
+                'totalPowerConsumption': total_power,
+                'timestamp': datetime.datetime.now().isoformat(),  # Optional, for logging purposes
+            }
+        )
+        
+        return buildResponse(200, {
             'Operation': 'SAVE',
-            'Message': 'Successfully saved logs',
-            'Log': requestBody
-        }
-        return buildResponse(201,body)
-    except:
-        logger.exception('Error saving logs')
-        return buildResponse(500,{'Operation': 'SAVE', 'Message': 'Failed to save logs'})
-    
+            'Message': 'Power consumption logged successfully.',
+            'TotalPowerConsumption': total_power
+        })
+
+    except Exception as e:
+        return buildResponse(500, {
+            'Operation': 'SAVE',
+            'Message': f'Error occurred: {str(e)}'
+        })    
 
 def getSmartMeterLogs(meterId):
     try:
