@@ -4,6 +4,7 @@ import logging
 from electric_custom_encoder import CustomEncoder
 from boto3.dynamodb.conditions import Key
 import datetime
+from decimal import Decimal
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -70,6 +71,9 @@ def saveLogs(requestBody):
                 'Message': 'Invalid powerConsumption value. It must be a non-negative number.'
             })
         
+        # Convert to Decimal to handle precision and DynamoDB requirements
+        current_power = Decimal(str(current_power))
+        
         # Get the current month in YYYY-MM format
         current_month = datetime.datetime.now().strftime("%Y-%m")
 
@@ -83,7 +87,7 @@ def saveLogs(requestBody):
 
         # If previous log exists, calculate total power consumption
         if prev_log:
-            prev_power = prev_log[0].get('totalPowerConsumption', 0)
+            prev_power = prev_log[0].get('totalPowerConsumption',  Decimal(0))
             total_power = prev_power + current_power
         else:
             # If no previous log, set the current power as the total consumption
