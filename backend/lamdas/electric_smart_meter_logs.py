@@ -53,6 +53,9 @@ def saveLogs(requestBody):
         required_fields = ["meterId", "powerConsumption"]
         missing_fields = [field for field in required_fields if field not in requestBody or requestBody[field] in [None, ""]]
 
+        meter_id = requestBody["meterId"]
+        current_power = requestBody["powerConsumption"]
+
         if missing_fields:
             return buildResponse(400, {
                 'Operation': 'SAVE',
