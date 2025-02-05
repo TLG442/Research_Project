@@ -62,8 +62,8 @@ const HomeScreen = () => {
 
 
       {/* Insights Button */}
-      <TouchableOpacity style={styles.insightsButton}>
-        <Text style={styles.insightsButtonText}  onPress={() => router.push('../water-usag-insights')}>Water usage Insights</Text>
+      <TouchableOpacity style={styles.insightsButton} onPress={() => router.push('../water-usag-insights')}>
+        <Text style={styles.insightsButtonText}  >Water usage Insights</Text>
       </TouchableOpacity>
       <Text style={styles.insightsLabel}>Track your water usage and detect patterns over time.</Text>
 
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     alignItems: 'center',
     marginBottom: 10,
-    width: 400,
+    width: 300,
     alignSelf: 'center', // Centers the button horizontally
   },
   
