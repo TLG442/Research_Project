@@ -3,6 +3,8 @@ import json
 import logging
 from electric_custom_encoder import CustomEncoder
 from boto3.dynamodb.conditions import Key
+import datetime
+from decimal import Decimal
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -49,17 +51,69 @@ def buildResponse(statusCode,body=None):
 
 def saveLogs(requestBody):
     try:
-        table.put_item(Item=requestBody)
-        body = {
+        # Validate required fields
+        required_fields = ["meterId", "powerConsumption"]
+        missing_fields = [field for field in required_fields if field not in requestBody or requestBody[field] in [None, ""]]
+
+        meter_id = requestBody["meterId"]
+        current_power = requestBody["powerConsumption"]
+
+        if missing_fields:
+            return buildResponse(400, {
+                'Operation': 'SAVE',
+                'Message': f'Missing required fields: {", ".join(missing_fields)}'
+            })
+        
+        # Ensure powerConsumption is a valid number
+        if not isinstance(current_power, (int, float)) or current_power < 0:
+            return buildResponse(400, {
+                'Operation': 'SAVE',
+                'Message': 'Invalid powerConsumption value. It must be a non-negative number.'
+            })
+        
+        # Convert to Decimal to handle precision and DynamoDB requirements
+        current_power = Decimal(str(current_power))
+        
+        # Get the current month in YYYY-MM format
+        current_month = datetime.datetime.now().strftime("%Y-%m")
+
+        # Retrieve the latest log for this meterId and month
+        prev_response = table.query(
+            KeyConditionExpression=Key('meterId').eq(meter_id) & Key('date').eq(current_month),
+            ScanIndexForward=False,  # Get the latest entry first
+            Limit=1
+        )
+        prev_log = prev_response.get('Items', [])
+
+        # If previous log exists, calculate total power consumption
+        if prev_log:
+            prev_power = prev_log[0].get('totalPowerConsumption',  Decimal(0))
+            total_power = prev_power + current_power
+        else:
+            # If no previous log, set the current power as the total consumption
+            total_power = current_power
+        
+        # Save the updated log with total power consumption
+        response = table.put_item(
+            Item={
+                'meterId': meter_id,
+                'date': current_month,
+                'totalPowerConsumption': total_power,
+                'timestamp': datetime.datetime.now().isoformat(),  # Optional, for logging purposes
+            }
+        )
+        
+        return buildResponse(200, {
             'Operation': 'SAVE',
-            'Message': 'Successfully saved logs',
-            'Log': requestBody
-        }
-        return buildResponse(201,body)
-    except:
-        logger.exception('Error saving logs')
-        return buildResponse(500,{'Operation': 'SAVE', 'Message': 'Failed to save logs'})
-    
+            'Message': 'Power consumption logged successfully.',
+            'TotalPowerConsumption': total_power
+        })
+
+    except Exception as e:
+        return buildResponse(500, {
+            'Operation': 'SAVE',
+            'Message': f'Error occurred: {str(e)}'
+        })    
 
 def getSmartMeterLogs(meterId):
     try:
