@@ -61,6 +61,13 @@ def saveLogs(requestBody):
                 'Operation': 'SAVE',
                 'Message': f'Missing required fields: {", ".join(missing_fields)}'
             })
+        
+        # Ensure powerConsumption is a valid number
+        if not isinstance(current_power, (int, float)) or current_power < 0:
+            return buildResponse(400, {
+                'Operation': 'SAVE',
+                'Message': 'Invalid powerConsumption value. It must be a non-negative number.'
+            })
 
         table.put_item(Item=requestBody)
         body = {
