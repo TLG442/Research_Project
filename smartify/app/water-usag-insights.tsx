@@ -1,95 +1,140 @@
-import { View, Text, StyleSheet } from 'react-native';
-import React from 'react';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import React, { useState } from "react";
+import { Text, Box, Button, ButtonText } from "@gluestack-ui/themed";
+import { CartesianChart, Bar, useChartPressState } from "victory-native";
+import { Circle, useFont, vec } from "@shopify/react-native-skia";
+import { View, useColorScheme, StyleSheet } from "react-native";
+import { COLORMODES } from "@gluestack-style/react/lib/typescript/types";
+import { LinearGradient, Text as SKText } from "@shopify/react-native-skia";
+import { useDerivedValue } from "react-native-reanimated";
 import { useNavigation } from 'expo-router';
-import { Canvas, Rect, Group, RoundedRect, Text as SkiaText, useFont } from '@shopify/react-native-skia';
+const inter = require("../assets/fonts/roboto.ttf");
+
+const DATA = (length: number = 10) =>
+  Array.from({ length }, (_, index) => ({
+    month: index + 1,
+    listenCount: Math.floor(Math.random() * (100 - 50 + 1)) + 50,
+  }));
 
 export default function WaterUsageInsights() {
-  const insets = useSafeAreaInsets();
-  const navigation = useNavigation();
+  const [data, setData] = useState(DATA(5));
+    const navigation = useNavigation();
+  const font = useFont(inter, 12);
+  const toolTipFont = useFont(inter, 24);
+  const colorMode = useColorScheme() as COLORMODES;
+  const { state, isActive } = useChartPressState({
+    x: 0,
+    y: { listenCount: 0 },
+  });
 
-  React.useEffect(() => {
-    navigation.setOptions({ headerShown: false });
-  }, [navigation]);
+    React.useEffect(() => {
+      navigation.setOptions({ headerShown: false });
+    }, [navigation]);
 
-  // Hardcoded water usage data
-  const waterUsageData = [100, 30, 15, 25, 35, 40, 22]; // Liters per day
-  const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const isDark = colorMode === "dark";
 
-  // Load a font (replace with your font file path)
-  const font = useFont(require('../assets/fonts/SpaceMono-Regular.ttf'), 12);
-  if (!font) return null; // Wait for the font to load
+  const value = useDerivedValue(() => {
+    return "" + state.y.listenCount.value.value;
+  }, [state]);
+
+  const textYPosition = useDerivedValue(() => {
+    return state.y.listenCount.position.value - 15;
+  }, [value]);
+
+  const textXPosition = useDerivedValue(() => {
+    if (!toolTipFont) {
+      return 0;
+    }
+    return (
+      state.x.position.value - toolTipFont.measureText(value.value).width / 2
+    );
+  }, [value, toolTipFont]);
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-      <View style={styles.content}>
-        <View style={styles.headerContainer}>
-          <Text style={styles.headerText}>Water Usage Insights</Text>
-        </View>
+    <Box
+    style={{ backgroundColor: 'white' }} // Explicitly set background color to white
+    flex={1}
+    paddingHorizontal={5}
+    paddingVertical={30}
+  >
+      <Box width="100%" alignItems="center" paddingBottom={20} paddingTop={20}>
+        <Text fontSize={20} >
+          Water Usage Insights
+        </Text>
+      </Box>
+    <Box paddingTop={10} width="95%" height="80%">
+      <CartesianChart
+        xKey="month"
+        padding={5}
+        yKeys={["listenCount"]}
+        domain={{ y: [0, 100] }}
+        domainPadding={{ left: 50, right: 50, top: 30 }}
+        axisOptions={{
+          font,
+          tickCount: 5,
+          formatXLabel: (value) => {
+            const date = new Date(2023, value - 1);
+            return date.toLocaleString("default", { month: "short" });
+          },
+          lineColor: isDark ? "#71717a" : "#d4d4d8",
+          labelColor: isDark ? "black" : "black",
+        }}
+        chartPressState={state}
+        data={data}
+      >
+        {({ points, chartBounds }) => {
+          return (
+            <>
+            
+              <Bar
+                points={points.listenCount}
+                chartBounds={chartBounds}
+                animate={{ type: "timing", duration: 1000 }}
+                roundedCorners={{
+                  topLeft: 10,
+                  topRight: 10,
+                }}
+              >
+                <LinearGradient
+                  start={vec(0, 0)}
+                  end={vec(0, 400)}
+                  colors={["blue", "#34c6eb"]}
+                />
+              </Bar>
+  
+              {isActive ? (
+                <>
+                  <SKText
+                    font={toolTipFont}
+                    color={isDark ? "black" : "black"}
+                    x={textXPosition}
+                    y={textYPosition}
+                    text={value}
+                  />
+                  <Circle
+                    cx={state.x.position}
+                    cy={state.y.listenCount.position}
+                    r={8}
+                    color={"grey"}
+                    opacity={0.8}
+                  />
+                </>
+              ) : null}
+            </>
+          );
+        }}
+      </CartesianChart>
+    </Box>
+    <Box paddingTop={30} width="95%" height="20%" alignItems="center">
+      <Button
+        onPress={() => {
+          setData(DATA(5));
+        }}
+      >
+        <Text>Update Chart</Text>
+      </Button>
+    </Box>
+  </Box>
+  
 
-        <View style={styles.insightsContainer}>
-          <Canvas style={{ width: '100%', height: 400 }}>
-            <Rect x={0} y={0} width={420} height={200} color="#f0f0f0" />
-            <Group>
-              {waterUsageData.map((value, index) => (
-                <RoundedRect
-                  key={index}
-                  x={index * 50 + 20}
-                  y={150 - value}
-                  width={30}
-                  height={value}
-                  r={10}
-                  color="#34baeb"
-                />
-              ))}
-              {daysOfWeek.map((day, index) => (
-                <SkiaText
-                  key={day}
-                  x={index * 50 + 30}
-                  y={175}
-                  text={day}
-                  font={font}
-                  color="black"
-                />
-              ))}
-            </Group>
-          </Canvas>
-        </View>
-      </View>
-    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
-  },
-  content: {
-    flex: 1,
-    backgroundColor: 'white',
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
-  },
-  headerContainer: {
-    height: '30%',
-    backgroundColor: '#34baeb',
-    padding: 20,
-    justifyContent: 'center',
-  },
-  headerText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-    textAlign: 'center',
-  },
-  insightsContainer: {
-    flex: 2,
-    backgroundColor: 'white',
-    marginTop: -30,
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
-    paddingVertical: 20,
-    alignItems: 'center',
-  },
-});
