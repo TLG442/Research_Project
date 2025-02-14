@@ -105,22 +105,57 @@ export default function WaterUsageInsights() {
       style={{ backgroundColor: 'white' }} // Explicitly set background color to white
       flex={1}
       paddingHorizontal={5}
-      paddingVertical={30}
+      paddingVertical={0}
     >
-      <Box width="100%" alignItems="center" paddingBottom={20} paddingTop={20}>
-        <Text fontSize={20} >
-          Water Usage Insights
-        </Text>
-        <Button onPress={() => setShowCalendar(!showCalendar)}>
-          <Text>Select Date</Text>
-        </Button>
-      </Box>
+       <Box 
+  width="100%" 
+  height="17%"
+  borderRadius={10}
+  paddingBottom={20} 
+  paddingTop={20}
+  backgroundColor="lightgrey"
+  overflow="hidden" 
+  boxShadow="0px 4px 10px rgba(0, 0, 0, 0.3)" // Add shadow
+  position="relative" // Set relative positioning for the parent box to position the child box
+>
+  <Box // Nested box for the content
+    width="100%"
+    padding={10}
+    paddingTop={35}
+    borderRadius={10} // Rounded corners on the nested box
+    backgroundColor="lightgrey" // Maintain background
+  >
+    <Text fontSize={20}>
+      Water Usage Insights
+    </Text>
+  </Box>
+
+  {/* Date Picker */}
+  <Box 
+    position="absolute"
+    bottom={10} // Distance from the bottom of the parent box
+    right={10}  // Distance from the right of the parent box
+  >
+    <Button onPress={() => setShowCalendar(!showCalendar)} >
+      <Text>Select Date</Text>
+    </Button>
+  </Box>
+</Box>
+
+
+      <Box
+      style={{ backgroundColor: 'white' }} // Explicitly set background color to white
+      flex={1}
+      paddingHorizontal={5}
+      paddingVertical={25}
+    ></Box>
+ 
       {/* {showCalendar && (
         <CalendarPicker
           onDateChange={handleDateSelect}
         />
       )} */}
-      <Box paddingTop={10} width="95%" height="80%">
+      <Box paddingTop={10} width="95%" height="70%"  borderRadius={10} >
         <CartesianChart
           xKey="month"
           padding={5}
