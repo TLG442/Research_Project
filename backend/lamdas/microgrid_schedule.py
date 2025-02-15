@@ -77,7 +77,7 @@ def lambda_handler(event, context):
  
     # Return response
     return {
-        'statusCode': 200,
+        'statusCode': 200,   #returning success code.
         'body': json.dumps({
             "optimized_schedule": optimized_schedule
         })
