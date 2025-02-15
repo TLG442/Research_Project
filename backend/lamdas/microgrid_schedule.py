@@ -62,7 +62,7 @@ def particle_swarm_optimization(solar_power, load_demand, grid_price, battery_ca
  
 def lambda_handler(event, context):
     """AWS Lambda function to optimize energy scheduling."""
-    # Parse input JSON
+    # Parse input JSON object
     solar_power = event["solar_power"]
     load_demand = event["load_demand"]
     grid_price = event["grid_price"]
