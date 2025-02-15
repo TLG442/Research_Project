@@ -26,3 +26,35 @@ def cost_function(schedule, solar_power, load_demand, grid_price, battery_capaci
  
     return total_cost
  
+def particle_swarm_optimization(solar_power, load_demand, grid_price, battery_capacity, battery_soc, battery_efficiency, max_charge_rate, max_discharge_rate, num_particles=30, iterations=100):
+    """PSO-based optimization for energy scheduling."""
+    time_slots = len(solar_power)
+    # Initialize particles (random schedules)
+    particles = np.random.uniform(0, 1, (num_particles, time_slots, 3))
+    velocities = np.random.uniform(-0.1, 0.1, (num_particles, time_slots, 3))
+    p_best = particles.copy()
+    p_best_scores = np.array([cost_function(p, solar_power, load_demand, grid_price, battery_capacity, battery_soc, battery_efficiency, max_charge_rate, max_discharge_rate) for p in p_best])
+    g_best = p_best[np.argmin(p_best_scores)]
+ 
+    for _ in range(iterations):
+        for i in range(num_particles):
+            # Update velocity
+            velocities[i] = 0.7 * velocities[i] + 0.2 * np.random.rand() * (p_best[i] - particles[i]) + \
+                            0.1 * np.random.rand() * (g_best - particles[i])
+ 
+            # Update positions
+            particles[i] += velocities[i]
+ 
+            # Clip values within limits
+            particles[i] = np.clip(particles[i], 0, [solar_power, max_discharge_rate, float('inf')])
+ 
+            # Evaluate new solution
+            score = cost_function(particles[i], solar_power, load_demand, grid_price, battery_capacity, battery_soc, battery_efficiency, max_charge_rate, max_discharge_rate)
+            if score < p_best_scores[i]:
+                p_best[i] = particles[i].copy()
+                p_best_scores[i] = score
+ 
+        # Update global best
+        g_best = p_best[np.argmin(p_best_scores)]
+ 
+    return g_best.tolist()
