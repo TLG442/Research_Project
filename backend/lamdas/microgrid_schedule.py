@@ -58,3 +58,27 @@ def particle_swarm_optimization(solar_power, load_demand, grid_price, battery_ca
         g_best = p_best[np.argmin(p_best_scores)]
  
     return g_best.tolist()
+
+ 
+def lambda_handler(event, context):
+    """AWS Lambda function to optimize energy scheduling."""
+    # Parse input JSON
+    solar_power = event["solar_power"]
+    load_demand = event["load_demand"]
+    grid_price = event["grid_price"]
+    battery_capacity = event["battery_capacity"]
+    battery_soc = event["battery_soc"]
+    battery_efficiency = event["battery_efficiency"]
+    max_charge_rate = event["max_charge_rate"]
+    max_discharge_rate = event["max_discharge_rate"]
+ 
+    # Run optimization
+    optimized_schedule = particle_swarm_optimization(solar_power, load_demand, grid_price, battery_capacity, battery_soc, battery_efficiency, max_charge_rate, max_discharge_rate)
+ 
+    # Return response
+    return {
+        'statusCode': 200,
+        'body': json.dumps({
+            "optimized_schedule": optimized_schedule
+        })
+    }
