@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Image, Platform } from 'react-native';
+import { Image, Platform, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context'; // Import for safe area handling
 
 import { HapticTab } from '@/components/HapticTab';
 import TabBarBackground from '@/components/ui/TabBarBackground';
@@ -9,6 +10,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const insets = useSafeAreaInsets(); // Get safe area insets
 
   return (
     <Tabs
@@ -20,11 +22,13 @@ export default function TabLayout() {
         tabBarShowLabel: false, // Remove text labels
         tabBarStyle: {
           position: 'absolute',
-          bottom: 20,
+          bottom: Platform.OS === 'ios' ? insets.bottom : 20, // Adjust for iOS safe area
           width: '90%', // Ensures left and right spacing
           marginHorizontal: '5%', // Centers the tab bar
           borderRadius: 25, // Rounded corners
           backgroundColor: '#A9A9A9',
+          height: Platform.OS === 'ios' ? 40 : 50, // Adjust height for iOS
+          overflow: 'hidden', // Ensure border radius is visible on iOS
           ...Platform.select({
             ios: {
               shadowColor: '#000',
