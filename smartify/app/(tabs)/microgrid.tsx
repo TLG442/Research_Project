@@ -8,7 +8,7 @@ const { width, height } = Dimensions.get('window');
 const FREQUENCY = 7;
 const INITIAL_AMPLITUDE = 20;
 const INITIAL_VERTICAL_OFFSET = 100;
-const HomeScreen = () => {
+const microgrid = () => {
   const insets = useSafeAreaInsets();
   const waveAnim = useRef(new Animated.Value(0)).current; // Initial position
   const animation = useRef(new Animated.Value(0)).current;
@@ -23,7 +23,7 @@ const HomeScreen = () => {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerTextContainer}> {/* Added container for text */}
-          <Text style={styles.goodMorning}>Home screen,</Text>
+          <Text style={styles.goodMorning}>microgrid,</Text>
          
         </View>
         <View style={styles.headerIcons}> {/* Container for icons */}
@@ -182,4 +182,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
+export default microgrid;

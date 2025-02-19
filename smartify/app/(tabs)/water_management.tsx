@@ -8,34 +8,136 @@ const { width, height } = Dimensions.get('window');
 const FREQUENCY = 7;
 const INITIAL_AMPLITUDE = 20;
 const INITIAL_VERTICAL_OFFSET = 100;
-const HomeScreen = () => {
+const water_management = () => {
   const insets = useSafeAreaInsets();
   const waveAnim = useRef(new Animated.Value(0)).current; // Initial position
   const animation = useRef(new Animated.Value(0)).current;
   const verticalOffset = useRef(new Animated.Value(INITIAL_VERTICAL_OFFSET)).current;
   const amplitude = useRef(new Animated.Value(INITIAL_AMPLITUDE)).current;
 
+  const createWavePath = (animationValue: number): Animated.AnimatedInterpolation<string> => {
+    return Animated.add(
+      verticalOffset,
+      Animated.multiply(
+        amplitude,
+        new Animated.Value(Math.sin(animationValue * Math.PI * FREQUENCY))
+      )
+    ).interpolate({
+      inputRange: [0, height],
+      outputRange: [0, height],
+      extrapolate: 'clamp'
+    });
+  };
 
-  
+  const animatedPath: Animated.AnimatedInterpolation<string> = animation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [
+      `M0,${INITIAL_VERTICAL_OFFSET} 
+       Q${width/4},${INITIAL_VERTICAL_OFFSET + INITIAL_AMPLITUDE} 
+       ${width/2},${INITIAL_VERTICAL_OFFSET} 
+       T${width},${INITIAL_VERTICAL_OFFSET} 
+       L${width},${height} 
+       L0,${height} Z`,
+      
+      `M0,${INITIAL_VERTICAL_OFFSET} 
+       Q${width/4},${INITIAL_VERTICAL_OFFSET - INITIAL_AMPLITUDE} 
+       ${width/2},${INITIAL_VERTICAL_OFFSET} 
+       T${width},${INITIAL_VERTICAL_OFFSET} 
+       L${width},${height} 
+       L0,${height} Z`
+    ]
+  });
+
+  const panResponder = PanResponder.create({
+    onMoveShouldSetPanResponder: () => true,
+    onPanResponderMove: (_, gestureState: PanResponderGestureState) => {
+      const { moveY } = gestureState;
+      if (moveY > INITIAL_VERTICAL_OFFSET) {
+        verticalOffset.setValue(Math.min(height, moveY));
+        const newAmplitude = Math.max(0, (height - moveY) * 0.025);
+        amplitude.setValue(newAmplitude);
+      }
+    }
+  });
+  useEffect(() => {
+    const animate = (): void => {
+      Animated.sequence([
+        Animated.timing(animation, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true
+        }),
+        Animated.timing(animation, {
+          toValue: 0,
+          duration: 1000,
+          useNativeDriver: true
+        })
+      ]).start(() => animate());
+    };
+
+    animate();
+  }, []);
+
+
+  const AnimatedPath = Animated.createAnimatedComponent(Path);
+  const AnimatedSvg = Animated.createAnimatedComponent(Svg);
+  const router = useRouter();
   return (
     <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
 
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerTextContainer}> {/* Added container for text */}
-          <Text style={styles.goodMorning}>Home screen,</Text>
-         
+          <Text style={styles.goodMorning}>Good Morning,</Text>
+          <Text style={styles.userName}>Tharuka</Text>
         </View>
         <View style={styles.headerIcons}> {/* Container for icons */}
-         
+          <TouchableOpacity>
+            <Image source={require('../../assets/images/bell.png')} style={styles.icon} /> {/* Replace with your bell icon path */}
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Image source={require('../../assets/images/settings_iccon-removebg-preview.png')} style={styles.icon} /> {/* Replace with your settings icon path */}
+          </TouchableOpacity>
         </View>
       </View>
 
-    
-    
+      {/* Water Flow Card */}
+      <View style={styles.card}>
+        <View style={styles.cardContent}> {/* Content container */}
+          <Text style={styles.flowRate}>30 LPM</Text>
+          <Text style={styles.flowLabel}>Current flow rate</Text>
+          <View style={styles.waterPumpContainer}> {/* Water pump and switch container */}
+            <Text style={styles.waterPumpLabel}>Water pump</Text>
+            <Switch />
+          </View>
+        </View>
 
- 
+        <View style={styles.waveContainer1} {...panResponder.panHandlers}>
+      <AnimatedSvg style={styles.canvas} width={width} height={height}>
+        <Defs>
+          <LinearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+            <Stop offset="0" stopColor="cyan" stopOpacity="1" />
+            <Stop offset="1" stopColor="blue" stopOpacity="1" />
+          </LinearGradient>
+        </Defs>
+        <AnimatedPath
+          d={animatedPath}
+          fill="url(#grad)"
+        />
+      </AnimatedSvg>
+      
+    </View>
+       
+       
    </View>
+      
+      <TouchableOpacity style={styles.insightsButton} onPress={() => router.push('../water-usag-insights')}>
+        <Text style={styles.insightsButtonText}  >Water usage Insights</Text>
+      </TouchableOpacity>
+      <Text style={styles.insightsLabel}>Track your water usage and detect patterns over time.</Text>
+
+     
+    </View>
   );
 };
 
@@ -182,4 +284,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
+export default water_management;
