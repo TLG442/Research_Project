@@ -41,7 +41,9 @@ export default function TabLayout() {
             },
           }),
         },
-      }}>
+      }}
+    >
+      
       <Tabs.Screen
         name="index"
         options={{
@@ -62,6 +64,75 @@ export default function TabLayout() {
           ),
         }}
       />
+
+    
+      <Tabs.Screen
+        name="water_management"
+        options={{
+          tabBarIcon: ({ color, focused }) => (
+            <Image
+              source={
+                focused
+                  ? require('../../assets/images/water_droplet.png') // Active icon
+                  : require('../../assets/images/water_droplet.png') // Inactive icon
+              }
+              style={{
+                width: 28,
+                height: 28,
+                tintColor: color,
+              }}
+              resizeMode="contain"
+            />
+          ),
+        }}
+      />
+
+
+
+<Tabs.Screen
+        name="microgrid"
+        options={{
+          tabBarIcon: ({ color, focused }) => (
+            <Image
+              source={
+                focused
+                  ? require('../../assets/images/react-logo.png') // Active icon
+                  : require('../../assets/images/react-logo.png') // Inactive icon
+              }
+              style={{
+                width: 28,
+                height: 28,
+                tintColor: color,
+              }}
+              resizeMode="contain"
+            />
+          ),
+        }}
+      />
+
+      
+<Tabs.Screen
+        name="lightControl"
+        options={{
+          tabBarIcon: ({ color, focused }) => (
+            <Image
+              source={
+                focused
+                  ? require('../../assets/images/splash-icon.png') // Active icon
+                  : require('../../assets/images/splash-icon.png') // Inactive icon
+              }
+              style={{
+                width: 28,
+                height: 28,
+                tintColor: color,
+              }}
+              resizeMode="contain"
+            />
+          ),
+        }}
+      />
+
+  
     </Tabs>
   );
 }
