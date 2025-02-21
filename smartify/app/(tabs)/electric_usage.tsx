@@ -14,28 +14,28 @@ const electric_usage = () => {
       power: "1000 Kw/h",
       location: "Kitchen-Bedroom",
       change: "-12%",
-      duration: "8 Unit 12 Jam",
+      duration: "8 Unit 12 Jan",
     },
     {
       name: "Air Conditioner",
       power: "1000 Kw/h",
       location: "Living Room",
       change: "-10.2%",
-      duration: "8 Unit 12 Jam",
+      duration: "8 Unit 12 Jan",
     },
     {
       name: "Wireless Speaker",
       power: "1000 Kw/h",
       location: "Bedroom",
       change: "-10.2%",
-      duration: "4 Unit 3 Jam",
+      duration: "4 Unit 3 Jan",
     },
     {
       name: "Television",
       power: "1000 Kw/h",
       location: "Living Room",
       change: "-100.2%",
-      duration: "Unit 12 Jam",
+      duration: "Unit 12 Jan",
     },
   ];
 

@@ -102,7 +102,7 @@ export default function TabLayout() {
               color={color}
             />
           ),
-          tabBarLabel: "Electric",
+          tabBarLabel: "Power",
         }}
       />
 
