@@ -1,138 +1,138 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-import { Image, Platform, StyleSheet } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context'; // Import for safe area handling
+import { Tabs } from "expo-router";
+import React from "react";
+import { Platform } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { MaterialCommunityIcons } from "@expo/vector-icons"; // Vector icons
+import { BlurView } from "expo-blur"; // For glassmorphism effect
 
-import { HapticTab } from '@/components/HapticTab';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { Colors } from "@/constants/Colors";
+import { useColorScheme } from "@/hooks/useColorScheme";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const insets = useSafeAreaInsets(); // Get safe area insets
+  const insets = useSafeAreaInsets();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarShowLabel: false, // Remove text labels
+        tabBarShowLabel: true, // Show labels
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: "600",
+          marginTop: 2, // Ensures good spacing from icon
+        },
+        tabBarItemStyle: {
+          justifyContent: "center", // Centers icon and label
+          alignItems: "center",
+          paddingVertical: 8, // Adjust vertical alignment
+        },
+        tabBarBackground: () => (
+          <BlurView
+            intensity={50}
+            style={{
+              position: "absolute",
+              bottom: 0, // Stick to bottom
+              width: "100%",
+              borderRadius: 0, // Flat bottom
+              backgroundColor: "rgba(255, 255, 255, 0.2)",
+              height: Platform.OS === "ios" ? 80 : 85, // Taller for centering
+              overflow: "hidden",
+              backdropFilter: "blur(10px)",
+              paddingBottom: insets.bottom ? insets.bottom / 2 : 10, // Ensure bottom padding
+              justifyContent: "center",
+              alignItems: "center",
+              ...Platform.select({
+                ios: {
+                  shadowColor: "#000",
+                  shadowOffset: { width: 0, height: 4 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 10,
+                },
+                android: {
+                  elevation: 10,
+                },
+              }),
+            }}
+          />
+        ),
         tabBarStyle: {
-          position: 'absolute',
-          bottom: Platform.OS === 'ios' ? insets.bottom : 20, // Adjust for iOS safe area
-          width: '90%', // Ensures left and right spacing
-          marginHorizontal: '5%', // Centers the tab bar
-          borderRadius: 25, // Rounded corners
-          backgroundColor: '#A9A9A9',
-          height: Platform.OS === 'ios' ? 40 : 50, // Adjust height for iOS
-          overflow: 'hidden', // Ensure border radius is visible on iOS
-          ...Platform.select({
-            ios: {
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.25,
-              shadowRadius: 3.84,
-            },
-            android: {
-              elevation: 5, // Shadow for Android
-            },
-          }),
+          backgroundColor: "transparent", // Needed for BlurView
+          position: "absolute",
+          borderTopWidth: 0,
+          elevation: 0, // Remove default shadow
         },
       }}
     >
-      
       <Tabs.Screen
         name="index"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <Image
-              source={
-                focused
-                  ? require('../../assets/images/Home_icon.png') // Active icon
-                  : require('../../assets/images/Home_icon.png') // Inactive icon
-              }
-              style={{
-                width: 28,
-                height: 28,
-                tintColor: color, // Apply color tint if needed
-              }}
-              resizeMode="contain"
+            <MaterialCommunityIcons
+              name={focused ? "home" : "home-outline"}
+              size={32}
+              color={color}
             />
           ),
+          tabBarLabel: "Home",
         }}
       />
 
-    
       <Tabs.Screen
         name="water_management"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <Image
-              source={
-                focused
-                  ? require('../../assets/images/water_droplet.png') // Active icon
-                  : require('../../assets/images/water_droplet.png') // Inactive icon
-              }
-              style={{
-                width: 28,
-                height: 28,
-                tintColor: color,
-              }}
-              resizeMode="contain"
+            <MaterialCommunityIcons
+              name={focused ? "water" : "water-outline"}
+              size={33}
+              color={color}
             />
           ),
+          tabBarLabel: "Water",
+        }}
+      />
+      <Tabs.Screen
+        name="electric_usage"
+        options={{
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialCommunityIcons
+              name={focused ? "lightning-bolt" : "lightning-bolt-outline"}
+              size={32}
+              color={color}
+            />
+          ),
+          tabBarLabel: "Electric",
         }}
       />
 
-
-
-<Tabs.Screen
+      <Tabs.Screen
         name="microgrid"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <Image
-              source={
-                focused
-                  ? require('../../assets/images/react-logo.png') // Active icon
-                  : require('../../assets/images/react-logo.png') // Inactive icon
-              }
-              style={{
-                width: 28,
-                height: 28,
-                tintColor: color,
-              }}
-              resizeMode="contain"
+            <MaterialCommunityIcons
+              name={focused ? "grid" : "grid-large"}
+              size={32}
+              color={color}
             />
           ),
+          tabBarLabel: "Grid",
         }}
       />
 
-      
-<Tabs.Screen
+      <Tabs.Screen
         name="lightControl"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <Image
-              source={
-                focused
-                  ? require('../../assets/images/splash-icon.png') // Active icon
-                  : require('../../assets/images/splash-icon.png') // Inactive icon
-              }
-              style={{
-                width: 28,
-                height: 28,
-                tintColor: color,
-              }}
-              resizeMode="contain"
+            <MaterialCommunityIcons
+              name={focused ? "lightbulb-on" : "lightbulb-outline"}
+              size={32}
+              color={color}
             />
           ),
+          tabBarLabel: "Lights",
         }}
       />
-
-  
     </Tabs>
   );
 }
