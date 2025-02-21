@@ -1,185 +1,106 @@
-import React, { useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, Switch, Image, TouchableOpacity , Animated , Dimensions ,PanResponder ,PanResponderGestureState  } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context'; // For handling safe areas
+import React from "react";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-import Svg, { Path, LinearGradient, Stop, Defs } from 'react-native-svg';
-import { useRouter } from 'expo-router';
-const { width, height } = Dimensions.get('window');
-const FREQUENCY = 7;
-const INITIAL_AMPLITUDE = 20;
-const INITIAL_VERTICAL_OFFSET = 100;
-const microgrid = () => {
-  const insets = useSafeAreaInsets();
-  const waveAnim = useRef(new Animated.Value(0)).current; // Initial position
-  const animation = useRef(new Animated.Value(0)).current;
-  const verticalOffset = useRef(new Animated.Value(INITIAL_VERTICAL_OFFSET)).current;
-  const amplitude = useRef(new Animated.Value(INITIAL_AMPLITUDE)).current;
+const MicroGridInsights = () => {
+  // Example values for solar production and battery storage
+  const solarProduction = "5.2 kWh";
+  const batteryStorage = "3.8 kWh";
 
+  // Example hardcoded daily schedule
+  const dailySchedule = [
+    { source: "Solar", time: "6 AM - 8 AM" },
+    { source: "Battery", time: "8 AM - 12 PM" },
+    { source: "Grid", time: "12 PM - 4 PM" },
+    { source: "Solar", time: "4 PM - 6 PM" },
+    { source: "Battery", time: "6 PM - 10 PM" },
+    { source: "Grid", time: "10 PM - 6 AM" },
+  ];
 
-  
   return (
-    <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.headerTextContainer}> {/* Added container for text */}
-          <Text style={styles.goodMorning}>microgrid,</Text>
-         
+    <ScrollView style={styles.container}>
+      {/* Energy Production Section (Solar & Battery) */}
+      <View style={styles.energyContainer}>
+        <View style={[styles.energyBox, styles.solarBox]}>
+          <MaterialCommunityIcons name="solar-power" size={36} color="black" />
+          <Text style={styles.energyLabel}>Solar Generation</Text>
+          <Text style={styles.energyValue}>{solarProduction}</Text>
         </View>
-        <View style={styles.headerIcons}> {/* Container for icons */}
-         
+        <View style={[styles.energyBox, styles.batteryBox]}>
+          <MaterialCommunityIcons
+            name="battery-charging"
+            size={36}
+            color="black"
+          />
+          <Text style={styles.energyLabel}>Battery Storage</Text>
+          <Text style={styles.energyValue}>{batteryStorage}</Text>
         </View>
       </View>
 
-    
-    
-
- 
-   </View>
+      {/* Daily Schedule Section */}
+      <Text style={styles.sectionTitle}>Daily Energy Schedule</Text>
+      <View style={styles.scheduleContainer}>
+        {dailySchedule.map((entry, index) => (
+          <View key={index} style={styles.scheduleBox}>
+            <Text style={styles.scheduleText}>Source: {entry.source}</Text>
+            <Text style={styles.scheduleText}>Time: {entry.time}</Text>
+          </View>
+        ))}
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  container: { flex: 1, backgroundColor: "white", padding: 20 }, // Added marginTop
+
+  // Energy Section Styles
+  energyContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 20,
+    marginTop: 20, // Added marginTop
+  },
+  energyBox: {
     flex: 1,
-    backgroundColor: 'white', // Light gray background
-    paddingHorizontal: 20, // Consistent horizontal padding
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between', // Space between text and icons
-    alignItems: 'center', // Vertically center
-    marginTop: 20, // Top margin
-    marginBottom: 20,
-  },
-  headerTextContainer: {
-    flexDirection: 'column', // Text stacked vertically
-  },
-  goodMorning: {
-    fontSize: 16,
-    color: '#777', // Slightly darker gray
-  },
-  userName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333', // Dark gray
-  },
-  headerIcons: {
-    flexDirection: 'row', // Icons in a row
-  },
-  
-  waveContainer: {
-    height: 100, // Height of the wave area
-    overflow: 'hidden', // Hide the wave as it moves out of the container
-  },
-  waveContainer1: {
-    height: 200, // Height of the wave area
-    overflow: 'hidden', // Hide the wave as it moves out of the container
-  },
-  wave: {
-    width: 400, // Width of the wave (should be larger than container)
-    height: 100, // Height of the wave
-    backgroundColor: 'lightblue', // Color of the wave
-    // You can use a more complex wave shape with SVG or images if needed.
-  },
-  icon: {
-    width: 30,
-    height: 30,
-    marginLeft: 10, // Space between icons
-  },
-  card: {
-    backgroundColor: 'white',
-    borderRadius: 10, // Rounded corners
     padding: 20,
-    marginBottom: 20,
-    elevation: 3, // For Android shadow (works well with elevation)
-    shadowColor: '#000', // For iOS shadow
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    marginHorizontal: 5,
+    elevation: 4,
   },
-  cardContent: {
-    flexDirection: 'column', // Align content vertically
-  },
-  flowRate: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  flowLabel: {
+  solarBox: { backgroundColor: "#FFDD44" },
+  batteryBox: { backgroundColor: "#55AAFF" },
+  energyLabel: {
     fontSize: 16,
-    color: '#777',
-    marginBottom: 10,
+    fontWeight: "bold",
+    color: "#333",
+    marginTop: 5,
   },
-  waterPumpContainer: {
-    flexDirection: 'row',
-    alignItems: 'center', // Align switch and label
+  energyValue: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginTop: 5,
+    color: "#000",
   },
-  waterPumpLabel: {
-    fontSize: 16,
-    color: '#333',
-    marginRight: 10,
+
+  // Schedule Section Styles
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginVertical: 15,
+    marginTop: 30, // Added margin-top
   },
-  waveImage: {
-    width: '100%',
-    height: 100, // Adjust as needed
-    marginTop: 10, // Space between content and image
+  scheduleContainer: { marginTop: 10 },
+  scheduleBox: {
+    backgroundColor: "#EEF7FF",
+    padding: 14,
+    borderRadius: 8,
+    marginBottom: 12,
+    elevation: 2,
   },
-  canvas: {
-    flex:1
-},
-  leakStatus: {
-    fontSize: 18,
-    color: '#333',
-    textAlign: 'center', // Center the text
-  },
-  insightsButton: {
-    backgroundColor: '#34baeb', // Blue button
-    borderRadius: 25,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    marginBottom: 10,
-    width: 300,
-    alignSelf: 'center', // Centers the button horizontally
-  },
-  
-  insightsButtonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  insightsLabel: {
-    fontSize: 14,
-    color: '#777',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  navBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around', // Distribute buttons evenly
-    backgroundColor: 'white',
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-  },
-  navButton: {
-    alignItems: 'center', // Center icon and text
-  },
-  navIcon: {
-    width: 25,
-    height: 25,
-    marginBottom: 5,
-  },
-  navButtonText: {
-    fontSize: 14,
-    color: '#333',
-  },
+  scheduleText: { fontSize: 16, fontWeight: "500", color: "#333" },
 });
 
-export default microgrid;
+export default MicroGridInsights;
