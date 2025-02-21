@@ -1,8 +1,8 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
 import { useRouter } from "expo-router";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 const electric_usage = () => {
   const insets = useSafeAreaInsets();
@@ -46,13 +46,25 @@ const electric_usage = () => {
       </View>
 
       <View style={styles.cardsContainer}>
+        {/* Usage This Week */}
         <View style={styles.card}>
+          <MaterialCommunityIcons
+            name="flash-outline"
+            size={32}
+            color="#FFA500"
+          />
           <Text style={styles.cardTitle}>Usage this Week</Text>
           <Text style={styles.cardValue}>2500 Wm</Text>
           <Text style={styles.cardStatus}>Low</Text>
         </View>
 
+        {/* Total Today */}
         <View style={styles.card}>
+          <MaterialCommunityIcons
+            name="calendar-today"
+            size={32}
+            color="#1E90FF"
+          />
           <Text style={styles.cardTitle}>Total Today</Text>
           <Text style={styles.cardValue}>2500 Wm</Text>
           <Text style={styles.cardStatus}>Low</Text>
@@ -102,20 +114,22 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     width: "48%",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  cardTitle: { fontSize: 14, color: "#666", marginBottom: 8 },
+  cardTitle: { fontSize: 14, color: "#666", marginTop: 8 },
   cardValue: {
     fontSize: 20,
     fontWeight: "bold",
     color: "#333",
-    marginBottom: 4,
+    marginVertical: 4,
   },
   cardStatus: { fontSize: 14, color: "#4CAF50" },
   insights: { alignSelf: "flex-end", marginBottom: 16 },
   insightsText: { color: "#34baeb", fontWeight: "500" },
   devicesContainer: { flex: 1 },
   deviceCard: {
-    backgroundColor: "#f8f8f8",
+    backgroundColor: "#EEF7FF",
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
