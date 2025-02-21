@@ -32,7 +32,7 @@ const electric_usage_insights = () => {
 
       {/* Device-wise Usage Bar Chart */}
       <Text style={styles.chartTitle}>Device-wise Power Usage</Text>
-      {/* <BarChart
+      <BarChart
         data={{
           labels: ["Lamp", "AC", "TV", "Speaker"],
           datasets: [{ data: [300, 1200, 800, 500] }],
@@ -40,8 +40,10 @@ const electric_usage_insights = () => {
         width={350}
         height={220}
         chartConfig={chartConfig}
+        yAxisLabel="$" // Add this line
+        yAxisSuffix="kWh" // Add this line
         style={styles.chart}
-      /> */}
+      />
     </ScrollView>
   );
 };
