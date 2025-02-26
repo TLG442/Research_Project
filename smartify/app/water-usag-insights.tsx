@@ -73,31 +73,41 @@ export default function WaterUsageInsights() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            Flow_data: `water_usage_${date.toISOString().split('T')[0]}`,
-            date: date.toISOString().split('T')[0],
+            Flow_data: `water_usage_${date.toISOString().split("T")[0]}`,
+            date: date.toISOString().split("T")[0],
           }),
         }
       );
-
+  
       const result = await response.json();
       console.log(result);
-
-      // Parse `body` since it's returned as a string
-      const parsedBody = JSON.parse(result.body);
-
-      const flowValues: number[] = parsedBody.Flow_values; // Now correctly accessing Flow_values
-
+  
+      let flowValues: number[] = [0]; // Default to [0] if no data is found
+  
+      if (response.status === 200) {
+        try {
+          const parsedBody = JSON.parse(result.body);
+          if (Array.isArray(parsedBody.Flow_values) && parsedBody.Flow_values.length > 0) {
+            flowValues = parsedBody.Flow_values;
+          }
+        } catch (parseError) {
+          console.error("Error parsing response body:", parseError);
+        }
+      } else if (response.status === 404) {
+        console.warn("No data found for the selected date. Defaulting to 0.");
+      }
+  
       const newData = flowValues.map((value: number, index: number) => ({
         month: index + 1,
         listenCount: value,
       }));
-
+  
       setData(newData);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
-};
-
+  };
+  
 
 
   return (
@@ -217,15 +227,7 @@ export default function WaterUsageInsights() {
           }}
         </CartesianChart>
       </Box>
-      <Box paddingTop={30} width="95%" height="20%" alignItems="center">
-        <Button
-          onPress={() => {
-            setData(DATA(5));
-          }}
-        >
-          <Text>Update Chart</Text>
-        </Button>
-      </Box>
+     
     </Box>
   );
 }
