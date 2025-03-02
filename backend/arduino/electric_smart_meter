@@ -15,6 +15,7 @@ void setup() {
     emon1.voltage(VOLTAGE_SENSOR_PIN, VCAL, 1.7); // (Pin, Calibration factor, Phase shift)
     emon1.current(CURRENT_SENSOR_PIN, CCAL);      // (Pin, Calibration factor)
 }
+float energyConsumed = 0.0;  // kWh storage
 
 void loop() {
     emon1.calcVI(20, 2000);
@@ -22,9 +23,13 @@ void loop() {
     float measuredVoltage = emon1.Vrms;
     float measuredCurrent = emon1.Irms;
 
-    float apparentPower = measuredVoltage * measuredCurrent; // VA
-    float realPower = emon1.realPower; // Get real power from EmonLib
-    float pf = (apparentPower > 0) ? (realPower / apparentPower) : 0; // Calculate power factor
+    float apparentPower = measuredVoltage * measuredCurrent;
+    float realPower = emon1.realPower;
+    float pf = (apparentPower > 0) ? (realPower / apparentPower) : 0;
+
+    // Calculate energy consumption
+    float timeInterval = 1.0 / 3600.0; // Convert 1 second to hours
+    energyConsumed += (realPower * timeInterval); // kWh
 
     Serial.print("Measured Voltage: ");
     Serial.print(measuredVoltage, 2);
@@ -38,13 +43,13 @@ void loop() {
     Serial.print(realPower, 2);
     Serial.print(" W\t");
 
-    Serial.print("Apparent Power: ");
-    Serial.print(apparentPower, 2);
-    Serial.print(" VA\t");
-
     Serial.print("Power Factor: ");
     Serial.print(pf, 2);
-    Serial.println();
+    Serial.print("\t");
+
+    Serial.print("Energy Consumed: ");
+    Serial.print(energyConsumed, 4);
+    Serial.println(" kWh");
 
     delay(1000);
 }
