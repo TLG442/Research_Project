@@ -5,32 +5,38 @@ EnergyMonitor emon1; // Create an instance of EmonLib
 #define VOLTAGE_SENSOR_PIN 35  // ZMPT101B connected to GPIO 35
 #define CURRENT_SENSOR_PIN 34  // SCT-013 connected to GPIO 34
 #define VCAL 94.5              // Voltage calibration factor for 230V system
-#define CCAL 0.52              // Current calibration factor
+#define CCAL 0.52                // Current calibration factor
+
+float energyConsumed = 0.0;  // kWh storage
 
 void setup() {
     Serial.begin(115200);
-    analogReadResolution(12);
+    analogReadResolution(12); // Set ESP32 ADC to 12-bit mode (0-4095 range)
 
     // Configure EmonLib for voltage and current measurement
     emon1.voltage(VOLTAGE_SENSOR_PIN, VCAL, 1.7); // (Pin, Calibration factor, Phase shift)
     emon1.current(CURRENT_SENSOR_PIN, CCAL);      // (Pin, Calibration factor)
 }
-float energyConsumed = 0.0;  // kWh storage
 
 void loop() {
-    emon1.calcVI(20, 2000);
+    // Measure voltage and current using EmonLib
+    emon1.calcVI(20, 2000); // Calculate voltage and current
 
-    float measuredVoltage = emon1.Vrms;
-    float measuredCurrent = emon1.Irms;
+    float measuredVoltage = emon1.Vrms; // Get RMS voltage
+    float measuredCurrent = emon1.Irms; // Get RMS current
 
-    float apparentPower = measuredVoltage * measuredCurrent;
-    float realPower = emon1.realPower;
+    // **Power Calculations**
+    float apparentPower = measuredVoltage * measuredCurrent; // VA
+    float realPower = emon1.realPower; // Get actual Real Power from EmonLib
+
+    // **Dynamic Power Factor Calculation**
     float pf = (apparentPower > 0) ? (realPower / apparentPower) : 0;
 
-    // Calculate energy consumption
+    // **Energy Consumption Calculation (kWh)**
     float timeInterval = 1.0 / 3600.0; // Convert 1 second to hours
     energyConsumed += (realPower * timeInterval); // kWh
 
+    // **Print Output**
     Serial.print("Measured Voltage: ");
     Serial.print(measuredVoltage, 2);
     Serial.print(" V\t");
@@ -43,6 +49,10 @@ void loop() {
     Serial.print(realPower, 2);
     Serial.print(" W\t");
 
+    Serial.print("Apparent Power: ");
+    Serial.print(apparentPower, 2);
+    Serial.print(" VA\t");
+
     Serial.print("Power Factor: ");
     Serial.print(pf, 2);
     Serial.print("\t");
@@ -51,5 +61,5 @@ void loop() {
     Serial.print(energyConsumed, 4);
     Serial.println(" kWh");
 
-    delay(1000);
+    delay(1000); // Update every second
 }
