@@ -1,5 +1,5 @@
 import React, { useState , useEffect  } from "react";
-import { Text, Box, Button, ButtonText } from "@gluestack-ui/themed";
+import { Text, Box, Button, ButtonText , Menu, MenuItem, Pressable } from "@gluestack-ui/themed";
 import { CartesianChart, Bar, useChartPressState } from "victory-native";
 import { Circle, useFont, vec } from "@shopify/react-native-skia";
 import { View, useColorScheme, StyleSheet } from "react-native";
@@ -7,6 +7,7 @@ import { COLORMODES } from "@gluestack-style/react/lib/typescript/types";
 import { LinearGradient, Text as SKText } from "@shopify/react-native-skia";
 import { useDerivedValue } from "react-native-reanimated";
 import { useNavigation } from 'expo-router';
+import { Picker } from "@react-native-picker/picker";
 // import CalendarPicker from 'react-native-calendar-picker';
 
 const inter = require("../assets/fonts/roboto.ttf");
@@ -21,10 +22,13 @@ export default function WaterUsageInsights() {
   const [data, setData] = useState(DATA(5));
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-
+  const [sortBy, setSortBy] = useState("date");
   const navigation = useNavigation();
+    const [showMenu, setShowMenu] = useState(false);
   const font = useFont(inter, 12);
+  const [timeRangeLabel, setTimeRangeLabel] = useState("Sort by");
   const toolTipFont = useFont(inter, 24);
+  const [timeRange, setTimeRange] = useState("past7days");
   const colorMode = useColorScheme() as COLORMODES;
   const { state, isActive } = useChartPressState({
     x: 0,
@@ -63,6 +67,12 @@ export default function WaterUsageInsights() {
     fetchData(date);
   };
   
+
+  const handleTimeRangeChange = (value: string, label: string) => {
+    setTimeRange(value);
+    setTimeRangeLabel(label);
+    setShowMenu(false);
+  };
   const fetchData = async (date: Date) => {
     try {
       const response = await fetch(
@@ -73,31 +83,41 @@ export default function WaterUsageInsights() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            Flow_data: `water_usage_${date.toISOString().split('T')[0]}`,
-            date: date.toISOString().split('T')[0],
+            Flow_data: `water_usage_${date.toISOString().split("T")[0]}`,
+            date: date.toISOString().split("T")[0],
           }),
         }
       );
-
+  
       const result = await response.json();
       console.log(result);
-
-      // Parse `body` since it's returned as a string
-      const parsedBody = JSON.parse(result.body);
-
-      const flowValues: number[] = parsedBody.Flow_values; // Now correctly accessing Flow_values
-
+  
+      let flowValues: number[] = [0]; // Default to [0] if no data is found
+  
+      if (response.status === 200) {
+        try {
+          const parsedBody = JSON.parse(result.body);
+          if (Array.isArray(parsedBody.Flow_values) && parsedBody.Flow_values.length > 0) {
+            flowValues = parsedBody.Flow_values;
+          }
+        } catch (parseError) {
+          console.error("Error parsing response body:", parseError);
+        }
+      } else if (response.status === 404) {
+        console.warn("No data found for the selected date. Defaulting to 0.");
+      }
+  
       const newData = flowValues.map((value: number, index: number) => ({
         month: index + 1,
         listenCount: value,
       }));
-
+  
       setData(newData);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
-};
-
+  };
+  
 
 
   return (
@@ -130,16 +150,26 @@ export default function WaterUsageInsights() {
     </Text>
   </Box>
 
-  {/* Date Picker */}
+
   <Box 
-    position="absolute"
-    bottom={10} // Distance from the bottom of the parent box
-    right={10}  // Distance from the right of the parent box
-  >
-    <Button onPress={() => setShowCalendar(!showCalendar)} >
-      <Text>Select Date</Text>
-    </Button>
-  </Box>
+          position="absolute"
+          top={5}
+          bottom={0}
+          right={0}
+          width="50%"
+        >
+          <Picker
+            selectedValue={timeRange}
+            onValueChange={(itemValue) => {
+              const label = itemValue === "past7days" ? "Past 7 Days" : "Month";
+              handleTimeRangeChange(itemValue, label);
+            }}
+            style={{ backgroundColor: 'lightgrey', borderRadius: 5 }}
+          >
+            <Picker.Item label="Past 7 Days" value="past7days" />
+            <Picker.Item label="Month" value="month" />
+          </Picker>
+        </Box>
 </Box>
 
 
@@ -217,15 +247,7 @@ export default function WaterUsageInsights() {
           }}
         </CartesianChart>
       </Box>
-      <Box paddingTop={30} width="95%" height="20%" alignItems="center">
-        <Button
-          onPress={() => {
-            setData(DATA(5));
-          }}
-        >
-          <Text>Update Chart</Text>
-        </Button>
-      </Box>
+     
     </Box>
   );
 }

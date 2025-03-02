@@ -130,6 +130,25 @@ const water_management = () => {
        
        
    </View>
+
+   <View style={styles.card1}>
+  <View style={styles.cardContent}> {/* Content container */}
+    <Text>
+      <Text style={styles.LeakStatusHeader}>Leak status: </Text>
+      <Text style={styles.leakdata}>leak in the system</Text>
+    </Text>
+    <Text>
+      <Text style={styles.LeakStatusHeader}>Leak category: </Text>
+      <Text style={styles.leakdata}>Gasket leak</Text>
+    </Text>
+    <Text>
+      <Text style={styles.LeakStatusHeader}>Severity: </Text>
+      <Text style={styles.leakdata}>High</Text>
+    </Text>
+  </View>
+</View>
+
+
       
       <TouchableOpacity style={styles.insightsButton} onPress={() => router.push('../water-usag-insights')}>
         <Text style={styles.insightsButtonText}  >Water usage Insights</Text>
@@ -176,7 +195,8 @@ const styles = StyleSheet.create({
   },
   waveContainer1: {
     height: 200, // Height of the wave area
-    overflow: 'hidden', // Hide the wave as it moves out of the container
+    overflow: 'hidden',
+    borderRadius: 20, // Hide the wave as it moves out of the container
   },
   wave: {
     width: 400, // Width of the wave (should be larger than container)
@@ -190,8 +210,19 @@ const styles = StyleSheet.create({
     marginLeft: 10, // Space between icons
   },
   card: {
-    backgroundColor: 'white',
-    borderRadius: 10, // Rounded corners
+    backgroundColor: '#e1e3e6',
+    borderRadius: 20, // Rounded corners
+    padding: 20,
+    marginBottom: 20,
+    elevation: 3, // For Android shadow (works well with elevation)
+    shadowColor: '#000', // For iOS shadow
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  card1: {
+    backgroundColor: '#f0d8a2',
+    borderRadius: 20, // Rounded corners
     padding: 20,
     marginBottom: 20,
     elevation: 3, // For Android shadow (works well with elevation)
@@ -208,6 +239,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
+  LeakStatusHeader: {
+    fontSize: 19,
+    fontWeight: '600', // Semi-bold
+    color: '#333', // Light grey color
+  },
+  
   flowLabel: {
     fontSize: 16,
     color: '#777',
@@ -218,6 +255,11 @@ const styles = StyleSheet.create({
     alignItems: 'center', // Align switch and label
   },
   waterPumpLabel: {
+    fontSize: 16,
+    color: '#333',
+    marginRight: 10,
+  },
+  leakdata: {
     fontSize: 16,
     color: '#333',
     marginRight: 10,
@@ -242,7 +284,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     alignItems: 'center',
     marginBottom: 10,
-    width: 300,
+    width: 250,
     alignSelf: 'center', // Centers the button horizontally
   },
   
