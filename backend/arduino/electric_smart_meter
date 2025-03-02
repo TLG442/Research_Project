@@ -17,10 +17,14 @@ void setup() {
 }
 
 void loop() {
-    emon1.calcVI(20, 2000); // Calculate voltage and current
+    emon1.calcVI(20, 2000);
 
-    float measuredVoltage = emon1.Vrms; // Get RMS voltage
-    float measuredCurrent = emon1.Irms; // Get RMS current
+    float measuredVoltage = emon1.Vrms;
+    float measuredCurrent = emon1.Irms;
+
+    float apparentPower = measuredVoltage * measuredCurrent; // VA
+    float realPower = emon1.realPower; // Get real power from EmonLib
+    float pf = (apparentPower > 0) ? (realPower / apparentPower) : 0; // Calculate power factor
 
     Serial.print("Measured Voltage: ");
     Serial.print(measuredVoltage, 2);
@@ -28,7 +32,19 @@ void loop() {
 
     Serial.print("Measured Current: ");
     Serial.print(measuredCurrent, 4);
-    Serial.println(" A");
+    Serial.print(" A\t");
+
+    Serial.print("Real Power: ");
+    Serial.print(realPower, 2);
+    Serial.print(" W\t");
+
+    Serial.print("Apparent Power: ");
+    Serial.print(apparentPower, 2);
+    Serial.print(" VA\t");
+
+    Serial.print("Power Factor: ");
+    Serial.print(pf, 2);
+    Serial.println();
 
     delay(1000);
 }
