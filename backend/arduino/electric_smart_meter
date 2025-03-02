@@ -9,8 +9,26 @@ EnergyMonitor emon1; // Create an instance of EmonLib
 
 void setup() {
     Serial.begin(115200);
-    analogReadResolution(12); // Set ESP32 ADC to 12-bit mode (0-4095 range)
+    analogReadResolution(12);
+
+    // Configure EmonLib for voltage and current measurement
+    emon1.voltage(VOLTAGE_SENSOR_PIN, VCAL, 1.7); // (Pin, Calibration factor, Phase shift)
+    emon1.current(CURRENT_SENSOR_PIN, CCAL);      // (Pin, Calibration factor)
 }
+
 void loop() {
-    // Placeholder for future implementation
+    emon1.calcVI(20, 2000); // Calculate voltage and current
+
+    float measuredVoltage = emon1.Vrms; // Get RMS voltage
+    float measuredCurrent = emon1.Irms; // Get RMS current
+
+    Serial.print("Measured Voltage: ");
+    Serial.print(measuredVoltage, 2);
+    Serial.print(" V\t");
+
+    Serial.print("Measured Current: ");
+    Serial.print(measuredCurrent, 4);
+    Serial.println(" A");
+
+    delay(1000);
 }
