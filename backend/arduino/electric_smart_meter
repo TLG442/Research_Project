@@ -1,0 +1,16 @@
+#include "EmonLib.h" // Include the EmonLib library
+
+EnergyMonitor emon1; // Create an instance of EmonLib
+
+#define VOLTAGE_SENSOR_PIN 35  // ZMPT101B connected to GPIO 35
+#define CURRENT_SENSOR_PIN 34  // SCT-013 connected to GPIO 34
+#define VCAL 94.5              // Voltage calibration factor for 230V system
+#define CCAL 0.52              // Current calibration factor
+
+void setup() {
+    Serial.begin(115200);
+    analogReadResolution(12); // Set ESP32 ADC to 12-bit mode (0-4095 range)
+}
+void loop() {
+    // Placeholder for future implementation
+}
