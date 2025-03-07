@@ -85,7 +85,7 @@ const water_management = () => {
   return (
     <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
 
-      {/* Header */}
+    
       <View style={styles.header}>
         <View style={styles.headerTextContainer}> {/* Added container for text */}
           <Text style={styles.goodMorning}>Good Morning,</Text>

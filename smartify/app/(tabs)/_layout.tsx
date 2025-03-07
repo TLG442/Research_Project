@@ -1,5 +1,5 @@
-import { Tabs } from "expo-router";
-import React from "react";
+import { Tabs , useRouter  } from "expo-router";
+import React , {useEffect } from "react";
 import { Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons"; // Vector icons
@@ -11,6 +11,20 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const insets = useSafeAreaInsets();
+  const router = useRouter();
+
+
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = true;
+      if (token) {
+    
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   return (
     <Tabs
