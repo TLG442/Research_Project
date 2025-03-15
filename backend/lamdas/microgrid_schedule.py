@@ -13,14 +13,17 @@ import random
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-dyanamodb_table_name = 'current-scheduler'
+dyanamodb_table_name = 'CurrentScheduler'
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table(dyanamodb_table_name)
 
 get_Method = 'GET'
 post_Method = 'POST'
+patch_Method = 'PATCH'
+delete_Method = 'DELETE'
 health_check_path = '/health'
-scheduler = '/scheduler'
+schedule = '/schedule'
+Schedules = '/schedules'
 
 
 # GA Optimization Weights
