@@ -1,7 +1,6 @@
 import json
 import numpy as np
 import boto3
-import json
 import logging
 from electric_custom_encoder import CustomEncoder
 from boto3.dynamodb.conditions import Key
@@ -13,18 +12,21 @@ import random
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-dyanamodb_table_name = 'CurrentScheduler'
+# DynamoDB Configuration
+dynamodb_table_name = 'CurrentScheduler'
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table(dyanamodb_table_name)
+table = dynamodb.Table(dynamodb_table_name)
 
-get_Method = 'GET'
-post_Method = 'POST'
-patch_Method = 'PATCH'
-delete_Method = 'DELETE'
-health_check_path = '/health'
-schedule = '/schedule'
-Schedules = '/schedules'
+# HTTP Methods
+GET_METHOD = 'GET'
+POST_METHOD = 'POST'
+PATCH_METHOD = 'PATCH'
+DELETE_METHOD = 'DELETE'
 
+# API Paths
+HEALTH_CHECK_PATH = '/health'
+SCHEDULE_PATH = '/schedule'
+ALL_SCHEDULES_PATH = '/schedules'
 
 # GA Optimization Weights
 W1 = 0.6  # Minimize Grid Usage
@@ -74,7 +76,7 @@ def save_schedule(user_id, date, schedules):
             }
             batch.put_item(Item=item)
 
-    print(f"Saved 24-hour schedule for user {user_id} on {date}.")
+    logger.info(f"Saved 24-hour schedule for user {user_id} on {date}.")
 
 # Run GA for 24-Hour Scheduling
 def run_ga_for_day(user_id):
@@ -113,99 +115,55 @@ def get_daily_schedule(user_id):
 
     return response.get("Items", [])
 
-    
-    ##for testing purpose
-    # Example Usage
+
+# Lambda API Gateway Handler
+def lambda_handler(event, context):
+    logger.info(f"Received event: {json.dumps(event)}")
+    http_method = event['httpMethod']
+    path = event['path']
+
+    if http_method == GET_METHOD and path == HEALTH_CHECK_PATH:
+        response = build_response(200, {"message": "Health Check OK"})
+
+    elif http_method == GET_METHOD and path == ALL_SCHEDULES_PATH:
+        user_id = event.get('queryStringParameters', {}).get('userId')
+        if not user_id:
+            response = build_response(400, {"error": "Missing userId"})
+        else:
+            response = build_response(200, get_daily_schedule(user_id))
+
+    elif http_method == POST_METHOD and path == ALL_SCHEDULES_PATH:
+        body = json.loads(event.get('body', '{}'))
+        user_id = body.get('user_id')
+        
+        if not user_id:
+            response = build_response(400, {"error": "Missing user_id"})
+        else:
+            run_ga_for_day(user_id)
+            response = build_response(200, {"message": f"24-hour schedule created for {user_id}"})
+
+    else:
+        response = build_response(404, {"error": "Resource Not Found"})
+
+    return response
+
+# Response Builder Function
+def build_response(status_code, body=None):
+    response = {
+        'statusCode': status_code,
+        'headers': {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+        }
+    }
+    if body is not None:
+        response['body'] = json.dumps(body, cls=CustomEncoder)
+    return response
+
+
+# For Testing
 if __name__ == "__main__":
     user_id = "user123"
     run_ga_for_day(user_id)  # Run GA to generate a 24-hour schedule
-
     print(get_schedule(user_id, 14))  # Get schedule for 2 PM
     print(get_daily_schedule(user_id))  # Get full day schedule
-
-
-    
-
-
- 
-def cost_function(schedule, solar_power, load_demand, grid_price, battery_capacity, battery_soc, battery_efficiency, max_charge_rate, max_discharge_rate):
-    """Compute the total cost for a given energy schedule."""
-    total_cost = 0
-    battery_energy = battery_capacity * (battery_soc / 100)
-    for t in range(len(schedule)):
-        P_solar, P_battery, P_grid = schedule[t]
-        # Ensure power balance
-        if abs(P_solar + P_battery + P_grid - load_demand[t]) > 0.1:
-            return float('inf')  # Penalize invalid schedules
- 
-        # Battery Constraints
-        if P_battery > 0:  # Discharging
-            if battery_energy < P_battery:
-                return float('inf')
-            battery_energy -= P_battery / battery_efficiency
-        else:  # Charging
-            if battery_energy - P_battery > battery_capacity:
-                return float('inf')
-            battery_energy -= P_battery * battery_efficiency
- 
-        # Calculate cost
-        total_cost += P_grid * grid_price[t]
- 
-    return total_cost
- 
-def particle_swarm_optimization(solar_power, load_demand, grid_price, battery_capacity, battery_soc, battery_efficiency, max_charge_rate, max_discharge_rate, num_particles=30, iterations=100):
-    """PSO-based optimization for energy scheduling."""
-    time_slots = len(solar_power)
-    # Initialize particles (random schedules)
-    particles = np.random.uniform(0, 1, (num_particles, time_slots, 3))
-    velocities = np.random.uniform(-0.1, 0.1, (num_particles, time_slots, 3))
-    p_best = particles.copy()
-    p_best_scores = np.array([cost_function(p, solar_power, load_demand, grid_price, battery_capacity, battery_soc, battery_efficiency, max_charge_rate, max_discharge_rate) for p in p_best])
-    g_best = p_best[np.argmin(p_best_scores)]
- 
-    for _ in range(iterations):
-        for i in range(num_particles):
-            # Update velocity
-            velocities[i] = 0.7 * velocities[i] + 0.2 * np.random.rand() * (p_best[i] - particles[i]) + \
-                            0.1 * np.random.rand() * (g_best - particles[i])
- 
-            # Update positions
-            particles[i] += velocities[i]
- 
-            # Clip values within limits
-            particles[i] = np.clip(particles[i], 0, [solar_power, max_discharge_rate, float('inf')])
- 
-            # Evaluate new solution
-            score = cost_function(particles[i], solar_power, load_demand, grid_price, battery_capacity, battery_soc, battery_efficiency, max_charge_rate, max_discharge_rate)
-            if score < p_best_scores[i]:
-                p_best[i] = particles[i].copy()
-                p_best_scores[i] = score
- 
-        # Update global best
-        g_best = p_best[np.argmin(p_best_scores)]
- 
-    return g_best.tolist()
-
- 
-def lambda_handler(event, context):
-    """AWS Lambda function to optimize energy scheduling."""
-    # Parse input JSON object
-    solar_power = event["solar_power"]
-    load_demand = event["load_demand"]
-    grid_price = event["grid_price"]
-    battery_capacity = event["battery_capacity"]
-    battery_soc = event["battery_soc"]
-    battery_efficiency = event["battery_efficiency"]
-    max_charge_rate = event["max_charge_rate"]
-    max_discharge_rate = event["max_discharge_rate"]
- 
-    # Run optimization
-    optimized_schedule = particle_swarm_optimization(solar_power, load_demand, grid_price, battery_capacity, battery_soc, battery_efficiency, max_charge_rate, max_discharge_rate)
- 
-    # Return response
-    return {
-        'statusCode': 200,   #returning success code.
-        'body': json.dumps({
-            "optimized_schedule": optimized_schedule
-        })
-    }
