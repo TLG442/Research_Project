@@ -11,4 +11,4 @@ app.add_url_rule('/predict', 'predict', predict, methods=['POST'])
 app.add_url_rule('/log_water', 'log_water_usage', log_water_usage, methods=['POST'])
 app.add_url_rule('/get_log_water', 'get_log_water_usage', get_water_usage, methods=['GET'])
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
