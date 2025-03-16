@@ -8,37 +8,6 @@ const electric_usage = () => {
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
-  const devices = [
-    {
-      name: "Lamp",
-      power: "1000 Kw/h",
-      location: "Kitchen-Bedroom",
-      change: "-12%",
-      duration: "8 Unit 12 Jan",
-    },
-    {
-      name: "Air Conditioner",
-      power: "1000 Kw/h",
-      location: "Living Room",
-      change: "-10.2%",
-      duration: "8 Unit 12 Jan",
-    },
-    {
-      name: "Wireless Speaker",
-      power: "1000 Kw/h",
-      location: "Bedroom",
-      change: "-10.2%",
-      duration: "4 Unit 3 Jan",
-    },
-    {
-      name: "Television",
-      power: "1000 Kw/h",
-      location: "Living Room",
-      change: "-100.2%",
-      duration: "Unit 12 Jan",
-    },
-  ];
-
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
@@ -79,22 +48,33 @@ const electric_usage = () => {
         <Text style={styles.insightsText}>Insights</Text>
       </TouchableOpacity>
 
-      <View style={styles.devicesContainer}>
-        {devices.map((device, index) => (
-          <View key={index} style={styles.deviceCard}>
-            <View style={styles.deviceHeader}>
-              <Text style={styles.deviceName}>{device.name}</Text>
-              <Text style={styles.devicePower}>{device.power}</Text>
-            </View>
+      {/* Total Power Consumption (Emphasized) */}
+      <View style={styles.totalPowerContainer}>
+        <MaterialCommunityIcons name="power-plug" size={48} color="#FF6347" />
+        <Text style={styles.totalPowerTitle}>Total Power Consumption</Text>
+        <Text style={styles.totalPowerValue}>10,500 Wm</Text>
+      </View>
 
-            <View style={styles.deviceDetails}>
-              <Text style={styles.deviceLocation}>{device.location}</Text>
-              <Text style={styles.deviceChange}>{device.change}</Text>
-            </View>
+      <View style={styles.cardsContainer}>
+        {/* Ampere */}
+        <View style={styles.card}>
+          <MaterialCommunityIcons
+            name="transmission-tower"
+            size={32}
+            color="#FFA500"
+          />
+          <Text style={styles.cardTitle}>Ampere</Text>
+          <Text style={styles.cardValue}>2500 Wm</Text>
+          <Text style={styles.cardStatus}>Low</Text>
+        </View>
 
-            <Text style={styles.deviceDuration}>{device.duration}</Text>
-          </View>
-        ))}
+        {/* Voltage */}
+        <View style={styles.card}>
+          <MaterialCommunityIcons name="flash" size={32} color="#1E90FF" />
+          <Text style={styles.cardTitle}>Voltage</Text>
+          <Text style={styles.cardValue}>2500 V</Text>
+          <Text style={styles.cardStatus}>Low</Text>
+        </View>
       </View>
     </View>
   );
@@ -127,28 +107,49 @@ const styles = StyleSheet.create({
   cardStatus: { fontSize: 14, color: "#4CAF50" },
   insights: { alignSelf: "flex-end", marginBottom: 16 },
   insightsText: { color: "#34baeb", fontWeight: "500" },
-  devicesContainer: { flex: 1 },
-  deviceCard: {
+  totalPowerContainer: {
+    backgroundColor: "#FFEBEE",
+    borderRadius: 12,
+    padding: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 40, // Added extra space here
+  },
+  totalPowerTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#FF6347",
+    marginTop: 8,
+  },
+  totalPowerValue: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "#FF6347",
+    marginVertical: 4,
+  },
+  monthlyContainer: { marginTop: 24 },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 12,
+  },
+  monthlyCard: {
     backgroundColor: "#EEF7FF",
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  deviceHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 8,
+  bottomCard: {
+    backgroundColor: "#f8f8f8",
+    borderRadius: 12,
+    padding: 16,
+    width: "48%",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  deviceName: { fontSize: 16, fontWeight: "600", color: "#333" },
-  devicePower: { fontSize: 14, color: "#666" },
-  deviceDetails: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 4,
-  },
-  deviceLocation: { fontSize: 14, color: "#666" },
-  deviceChange: { fontSize: 14, color: "#FF5252" },
-  deviceDuration: { fontSize: 12, color: "#999" },
 });
 
 export default electric_usage;
