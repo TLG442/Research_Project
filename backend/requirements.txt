@@ -4,3 +4,6 @@ botocore==1.31.15
 Werkzeug==2.3.7        # For request and response utilities in Flask
 tensorflow           # For machine learning and model inference (add this if using TensorFlow)
 numpy
+scikit-learn==1.5.1
+joblib==1.4.2
+
