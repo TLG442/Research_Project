@@ -1,5 +1,4 @@
 import json
-import numpy as np
 import boto3
 import logging
 from electric_custom_encoder import CustomEncoder
