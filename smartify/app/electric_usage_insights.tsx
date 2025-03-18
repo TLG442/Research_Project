@@ -49,12 +49,8 @@ const ElectricUsageInsights = () => {
     return <Text style={styles.loading}>Loading...</Text>;
   }
 
-  // Extract timestamps, energyConsumed, and voltage from the dataset
-  const timestamps = data.map((item) =>
-    new Date(item.timestamp).toLocaleTimeString()
-  );
   const energyConsumedData = data.map((item) =>
-    parseFloat(item.payload.energyConsumed)
+    parseFloat(item.payload.energyConsumedWh)
   );
   const voltageData = data.map((item) => parseFloat(item.payload.voltage));
 
@@ -67,7 +63,9 @@ const ElectricUsageInsights = () => {
 
       {/* Energy Consumption Over Time Line Chart */}
       <View style={styles.chartCard}>
-        <Text style={styles.chartTitle}>Energy Consumption Over Time</Text>
+        <Text style={styles.chartTitle}>
+          Energy Consumption Over Time (Wh/s)
+        </Text>
         <LineChart
           data={{
             datasets: [
@@ -81,14 +79,13 @@ const ElectricUsageInsights = () => {
           width={350}
           height={220}
           chartConfig={chartConfig}
-          yAxisLabel="kWh"
           style={styles.chart}
         />
       </View>
 
       {/* Voltage Over Time Line Chart */}
       <View style={styles.chartCard}>
-        <Text style={styles.chartTitle}>Voltage Over Time</Text>
+        <Text style={styles.chartTitle}>Voltage Over Time (v/s)</Text>
         <LineChart
           data={{
             datasets: [
@@ -102,7 +99,6 @@ const ElectricUsageInsights = () => {
           width={350}
           height={220}
           chartConfig={chartConfig}
-          yAxisLabel="V"
           style={styles.chart}
         />
       </View>
