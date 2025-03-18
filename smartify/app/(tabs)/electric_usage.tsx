@@ -163,6 +163,13 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
   promptText: { fontSize: 16, color: "#333" },
+  promptBox: {
+    backgroundColor: "#f8f8f8",
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 20,
+    alignItems: "center",
+  },
 });
 
 export default ElectricUsage;
