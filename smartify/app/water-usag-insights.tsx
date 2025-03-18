@@ -19,7 +19,7 @@ const DATA = (length: number = 10) =>
   }));
 
 export default function WaterUsageInsights() {
-  const [data, setData] = useState(DATA(5));
+  const [data, setData] = useState(DATA(7));
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [sortBy, setSortBy] = useState("date");
@@ -35,8 +35,21 @@ export default function WaterUsageInsights() {
     y: { listenCount: 0 },
   });
   useEffect(() => {
+    // Initial fetch
     fetchData(new Date());
+
+    // Set interval to fetch data every 10 seconds
+    const intervalId = setInterval(() => {
+      fetchData(new Date());
+    }, 30000000000); // 10 seconds
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
+
+  React.useEffect(() => {
+    navigation.setOptions({ headerShown: false });
+  }, [navigation]);
 
   React.useEffect(() => {
     navigation.setOptions({ headerShown: false });
@@ -92,13 +105,14 @@ export default function WaterUsageInsights() {
       const result = await response.json();
       console.log(result);
   
-      let flowValues: number[] = [0]; // Default to [0] if no data is found
+      let flowValues: number[] = [0, 0, 0, 0, 0, 0, 0]; // Default to 7 zeros for 7 days
   
       if (response.status === 200) {
         try {
           const parsedBody = JSON.parse(result.body);
-          if (Array.isArray(parsedBody.Flow_values) && parsedBody.Flow_values.length > 0) {
-            flowValues = parsedBody.Flow_values;
+          if (parsedBody.week_data && Array.isArray(parsedBody.week_data)) {
+            // Map the total_flow values from week_data (newest to oldest)
+            flowValues = parsedBody.week_data.map((item: any) => item.total_flow);
           }
         } catch (parseError) {
           console.error("Error parsing response body:", parseError);
@@ -108,7 +122,7 @@ export default function WaterUsageInsights() {
       }
   
       const newData = flowValues.map((value: number, index: number) => ({
-        month: index + 1,
+        month: index + 1, // 1 to 7, matching "Mon" to "Sun"
         listenCount: value,
       }));
   
@@ -117,7 +131,6 @@ export default function WaterUsageInsights() {
       console.error("Error fetching data:", error);
     }
   };
-  
 
 
   return (
@@ -150,7 +163,7 @@ export default function WaterUsageInsights() {
     </Text>
   </Box>
 
-
+{/* 
   <Box 
           position="absolute"
           top={5}
@@ -169,15 +182,16 @@ export default function WaterUsageInsights() {
             <Picker.Item label="Past 7 Days" value="past7days" />
             <Picker.Item label="Month" value="month" />
           </Picker>
-        </Box>
+        </Box> */}
 </Box>
 
 
       <Box
+        height="5%"
       style={{ backgroundColor: 'white' }} // Explicitly set background color to white
-      flex={1}
+      
       paddingHorizontal={5}
-      paddingVertical={25}
+      paddingVertical={2}
     ></Box>
  
       {/* {showCalendar && (
@@ -185,26 +199,27 @@ export default function WaterUsageInsights() {
           onDateChange={handleDateSelect}
         />
       )} */}
-      <Box paddingTop={10} width="95%" height="70%"  borderRadius={10} >
-        <CartesianChart
-          xKey="month"
-          padding={5}
-          yKeys={["listenCount"]}
-          domain={{ y: [0, 100] }}
-          domainPadding={{ left: 50, right: 50, top: 30 }}
-          axisOptions={{
-            font,
-            tickCount: 5,
-            formatXLabel: (value) => {
-              const date = new Date(2023, value - 1);
-              return date.toLocaleString("default", { month: "short" });
-            },
-            lineColor: isDark ? "#71717a" : "#d4d4d8",
-            labelColor: isDark ? "black" : "black",
-          }}
-          chartPressState={state}
-          data={data}
-        >
+      <Box paddingTop={1} paddingBottom={55} width="95%" height="70%"  borderRadius={10} >
+      <CartesianChart
+  xKey="month"
+  padding={5}
+  yKeys={["listenCount"]}
+  domain={{ y: [0, 100] }}
+  domainPadding={{ left: 50, right: 50, top: 30 }}
+  axisOptions={{
+    font,
+    tickCount: 7, 
+    formatXLabel: (value) => {
+      const labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+      return labels[value - 1] || "";
+    },
+    lineColor: isDark ? "#71717a" : "#d4d4d8",
+    labelColor: isDark ? "black" : "black",
+  }}
+  chartPressState={state}
+  data={data}
+>
+
           {({ points, chartBounds }) => {
             return (
               <>

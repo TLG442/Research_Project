@@ -8,16 +8,20 @@ import {
   Animated,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
 import Svg, { Path, LinearGradient as SvgLinearGradient, Stop, Defs } from 'react-native-svg';
-import { useRouter } from 'expo-router';
-import SignupScreen from './SignUp';
+import { useNavigation, useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const LoginScreen = () => {
-  const fadeAnim = useRef(new Animated.Value(0)).current; // For fade-in animation
-  const buttonScale = useRef(new Animated.Value(1)).current; // For button press animation
+const Signup = () => {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const buttonScale = useRef(new Animated.Value(1)).current;
   const router = useRouter();
-
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [confirmPassword, setConfirmPassword] = React.useState('');
+  const navigation = useNavigation();
   // Fade-in animation on mount
   React.useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -27,34 +31,44 @@ const LoginScreen = () => {
     }).start();
   }, [fadeAnim]);
 
+    React.useEffect(() => {
+      navigation.setOptions({ headerShown: false });
+    }, [navigation]);
+
   // Button press animation
   const handlePressIn = () => {
-
-    router.replace('/(tabs)');
     Animated.spring(buttonScale, {
       toValue: 0.95,
       useNativeDriver: true,
     }).start();
-
   };
 
-
-  const AccountSignin = () => {
-
-    router.replace('/Signup');
-    Animated.spring(buttonScale, {
-      toValue: 0.95,
-      useNativeDriver: true,
-    }).start();
-
-  };
-  const handlePressOut = () => {
+  const handlePressOut = async () => {
     Animated.spring(buttonScale, {
       toValue: 1,
       useNativeDriver: true,
     }).start();
-    // Navigate to water management screen (adjust path as needed)
-    // router.push('/water-management');
+
+    try {
+      // Validate inputs
+      if (!email || !password || !confirmPassword) {
+        throw new Error('Please fill in all fields');
+      }
+      if (password !== confirmPassword) {
+        throw new Error('Passwords do not match');
+      }
+
+      // Simulate signup logic (replace with your actual authentication/signup API call)
+      console.log('Signing up with:', { email, password });
+      // Example: await fetch('your-signup-endpoint', { method: 'POST', body: JSON.stringify({ email, password }) });
+
+      // On successful signup, save auth state
+      await AsyncStorage.setItem('isAuthenticated', 'true');
+      router.replace('/(tabs)'); // Redirect to tabs after signup
+    } catch (error) {
+      console.error('Signup failed:', error);
+     
+    }
   };
 
   return (
@@ -83,7 +97,7 @@ const LoginScreen = () => {
           <Text style={styles.subtitle}>Control Your Smart Home, Seamlessly</Text>
         </View>
 
-        {/* Login Form */}
+        {/* Signup Form */}
         <View style={styles.formContainer}>
           <TextInput
             style={styles.input}
@@ -91,20 +105,25 @@ const LoginScreen = () => {
             placeholderTextColor="#aaa"
             keyboardType="email-address"
             autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
           />
           <TextInput
             style={styles.input}
             placeholder="Password"
             placeholderTextColor="#aaa"
             secureTextEntry
+            value={password}
+            onChangeText={setPassword}
           />
-
-          <TouchableOpacity
-            style={styles.forgotPassword}
-            onPress={AccountSignin}
-          >
-            <Text style={styles.forgotText}>Dont have an account?</Text>
-          </TouchableOpacity>
+          <TextInput
+            style={styles.input}
+            placeholder="Confirm Password"
+            placeholderTextColor="#aaa"
+            secureTextEntry
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+          />
 
           <TouchableOpacity
             activeOpacity={0.8}
@@ -119,13 +138,17 @@ const LoginScreen = () => {
                     <Stop offset="1" stopColor="#4682b4" stopOpacity="1" />
                   </SvgLinearGradient>
                 </Defs>
-                <Path
-                  d={`M0 0 H${300} V${50} H0 Z`}
-                  fill="url(#buttonGrad)"
-                />
+                <Path d={`M0 0 H${200} V${50} H0 Z`} fill="url(#buttonGrad)" />
               </Svg>
-              <Text style={styles.buttonText}>Login</Text>
+              <Text style={styles.buttonText}>Sign Up</Text>
             </Animated.View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.loginLink}
+            onPress={() => router.replace('/loginScreen')}
+          >
+            <Text style={styles.loginText}>Already have an account? Login</Text>
           </TouchableOpacity>
         </View>
       </Animated.View>
@@ -191,15 +214,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  forgotPassword: {
-    alignSelf: 'flex-end',
-    marginRight: 20,
-    marginBottom: 20,
-  },
-  forgotText: {
-    color: '#e0f7ff',
-    fontSize: 14,
-  },
   button: {
     width: 200,
     height: 50,
@@ -207,12 +221,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 25,
     overflow: 'hidden',
+    marginTop: 20,
   },
   buttonText: {
     position: 'absolute',
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  loginLink: {
+    marginTop: 15,
+  },
+  loginText: {
+    color: '#e0f7ff',
+    fontSize: 14,
   },
   waveContainer: {
     position: 'absolute',
@@ -221,4 +243,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+export default Signup;
