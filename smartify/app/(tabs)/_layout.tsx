@@ -1,7 +1,10 @@
-import { Tabs , useRouter  } from "expo-router";
-import React , {useEffect } from "react";
+import { Tabs, useRouter } from "expo-router";
+import React, { useEffect } from "react";
 import { Platform } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 import { MaterialCommunityIcons } from "@expo/vector-icons"; // Vector icons
 import { BlurView } from "expo-blur"; // For glassmorphism effect
 
@@ -13,13 +16,10 @@ export default function TabLayout() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
-
-
   useEffect(() => {
     const checkAuth = async () => {
       const token = true;
       if (token) {
-    
       }
     };
 
