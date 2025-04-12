@@ -1,4 +1,6 @@
-import React from "react";
+import { useAppContext } from "@/context/AppContext";
+import DatabaseHelper from "@/data/database";
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -8,10 +10,24 @@ import {
   Dimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context"; // For handling safe areas
+import { useRouter } from "expo-router";
 
 const { width, height } = Dimensions.get("window");
 const LightControl = () => {
+  const { calibratedRooms, setCalibratedRooms } = useAppContext();
   const insets = useSafeAreaInsets();
+
+  const router = useRouter();
+
+  useEffect(() => {
+    DatabaseHelper.createTables();
+    DatabaseHelper.getCalibratedRooms().then((rooms) => {
+      setCalibratedRooms(rooms);
+    });
+  }, []);
+
+  const isCalibratedRoomsEmpty = calibratedRooms.length === 0;
+
   return (
     <View
       style={[
@@ -43,7 +59,12 @@ const LightControl = () => {
       <View>
         <Text style={styles.calibrationOptionTitle}>Calibration Options</Text>
         <View style={styles.calibrationOptionsContainer}>
-          <TouchableOpacity style={styles.flexOne}>
+          <TouchableOpacity
+            onPress={() => {
+              router.push("../light_control/room_input");
+            }}
+            style={styles.flexOne}
+          >
             <View style={styles.calibrationOptionCard}>
               <Image
                 source={require("../../assets/images/Rect1.png")}
@@ -54,11 +75,17 @@ const LightControl = () => {
                 style={styles.rect1Icon}
               />
               <Text style={styles.calibrationOptionCardText}>
-                Recalibrate Rooms
+                Calibrate Rooms
               </Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.flexOne}>
+          <TouchableOpacity
+            disabled={isCalibratedRoomsEmpty}
+            style={{
+              ...styles.flexOne,
+              opacity: isCalibratedRoomsEmpty ? 0.5 : 1, // Disable opacity if empty
+            }}
+          >
             <View style={styles.calibrationOptionCard}>
               <Image
                 source={require("../../assets/images/Rect2.png")}

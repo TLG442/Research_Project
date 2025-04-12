@@ -135,7 +135,7 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="lightControl"
+        name="light_control"
         options={{
           tabBarIcon: ({ color, focused }) => (
             <MaterialCommunityIcons
