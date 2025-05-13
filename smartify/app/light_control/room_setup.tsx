@@ -7,6 +7,8 @@ import {
   TextInput,
   TouchableOpacity,
   FlatList,
+  Platform,
+  PermissionsAndroid,
 } from "react-native";
 import Geolocation from "react-native-geolocation-service";
 
@@ -25,9 +27,9 @@ const RoomSetup: React.FC = () => {
     setRoomNames(updatedRoomNames);
   };
 
-  useEffect(() => {
+  const getLocation = async () => {
     Geolocation.requestAuthorization("always");
-    Geolocation.getCurrentPosition(
+    Geolocation.watchPosition(
       (position) => {
         console.log("Current Position:", position);
         setCurrentCoordinates({
@@ -38,8 +40,12 @@ const RoomSetup: React.FC = () => {
       (error) => {
         console.error("Error getting location:", error);
       },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+      { enableHighAccuracy: true, distanceFilter: 0, interval: 5000 }
     );
+  };
+
+  useEffect(() => {
+    getLocation();
   }, []);
 
   const renderRoomItem = ({ item, index }: { item: string; index: number }) => (

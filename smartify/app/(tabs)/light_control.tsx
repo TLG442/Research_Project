@@ -8,18 +8,42 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
+  PermissionsAndroid,
+  Platform,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context"; // For handling safe areas
 import { useRouter } from "expo-router";
+import * as Location from "expo-location";
 
-const { width, height } = Dimensions.get("window");
 const LightControl = () => {
   const { calibratedRooms, setCalibratedRooms } = useAppContext();
   const insets = useSafeAreaInsets();
 
   const router = useRouter();
 
+  const checkLocationPermissions = async () => {
+    const { status, canAskAgain } =
+      await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      console.error("Location permission not granted");
+      if (canAskAgain) {
+        const { status: newStatus } =
+          await Location.requestForegroundPermissionsAsync();
+        return newStatus === "granted";
+      }
+      return false;
+    }
+    return true;
+  };
+
   useEffect(() => {
+    const checkPermissions = async () => {
+      const hasPermission = await checkLocationPermissions();
+      if (!hasPermission) {
+        console.error("Location permission not granted");
+      }
+    };
+    checkPermissions();
     DatabaseHelper.createTables();
     DatabaseHelper.getCalibratedRooms().then((rooms) => {
       setCalibratedRooms(rooms);
