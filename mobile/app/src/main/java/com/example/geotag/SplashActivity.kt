@@ -12,6 +12,7 @@ class SplashActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // In onCreate(), after showConnectionToast(), add the following line:
         setContentView(R.layout.activity_splash)
         val logo = findViewById<ImageView>(R.id.logoImageView)
         val animation = AnimationUtils.loadAnimation(this, R.anim.fade_in)
