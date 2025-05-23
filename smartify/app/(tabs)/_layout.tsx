@@ -1,25 +1,23 @@
-import { Tabs , useRouter  } from "expo-router";
-import React , {useEffect } from "react";
-import { Platform } from "react-native";
+import { Tabs, useRouter } from "expo-router";
+import React, { useEffect } from "react";
+import { Platform, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { MaterialCommunityIcons } from "@expo/vector-icons"; // Vector icons
-import { BlurView } from "expo-blur"; // For glassmorphism effect
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { BlurView } from "expo-blur";
 
 import { Colors } from "@/constants/Colors";
-import { useColorScheme } from "@/hooks/useColorScheme";
+
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+
   const insets = useSafeAreaInsets();
   const router = useRouter();
-
-
 
   useEffect(() => {
     const checkAuth = async () => {
       const token = true;
       if (token) {
-    
+        // Add your auth logic here if needed
       }
     };
 
@@ -29,53 +27,67 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+        tabBarActiveTintColor: "#0394fc",
         headerShown: false,
-        tabBarShowLabel: true, // Show labels
+        tabBarShowLabel: true,
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: "600",
-          marginTop: 2, // Ensures good spacing from icon
+          marginTop: 2,
         },
         tabBarItemStyle: {
-          justifyContent: "center", // Centers icon and label
+          justifyContent: "center",
           alignItems: "center",
-          paddingVertical: 8, // Adjust vertical alignment
+          paddingVertical: 8,
         },
-        tabBarBackground: () => (
-          <BlurView
-            intensity={50}
-            style={{
-              position: "absolute",
-              bottom: 0, // Stick to bottom
-              width: "100%",
-              borderRadius: 0, // Flat bottom
-              backgroundColor: "rgba(255, 255, 255, 0.2)",
-              height: Platform.OS === "ios" ? 80 : 85, // Taller for centering
-              overflow: "hidden",
-              backdropFilter: "blur(10px)",
-              paddingBottom: insets.bottom ? insets.bottom / 2 : 10, // Ensure bottom padding
-              justifyContent: "center",
-              alignItems: "center",
-              ...Platform.select({
-                ios: {
-                  shadowColor: "#000",
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 10,
-                },
-                android: {
-                  elevation: 10,
-                },
-              }),
-            }}
-          />
-        ),
+        tabBarBackground: () =>
+          Platform.OS === "ios" ? (
+            <BlurView
+              intensity={50}
+              style={{
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                borderRadius: 0,
+                backgroundColor: "rgba(255, 255, 255, 0.2)",
+                height: 80 + (insets.bottom || 0), // Include safe area bottom
+                overflow: "hidden",
+                backdropFilter: "blur(10px)",
+                justifyContent: "center",
+                alignItems: "center",
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.3,
+                shadowRadius: 10,
+              }}
+            />
+          ) : (
+            <View
+              style={{
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                borderRadius: 0,
+                backgroundColor: "rgba(233, 236, 238, 0.8)", // Red background for Android
+                height:  (insets.bottom || 0), // Include safe area bottom
+                justifyContent: "center",
+                alignItems: "center",
+                elevation: 10, // Android shadow
+              }}
+            />
+          ),
         tabBarStyle: {
-          backgroundColor: "transparent", // Needed for BlurView
+          backgroundColor: "transparent",
           position: "absolute",
+          left: 0,
+                right: 0,
+          bottom: 0,
           borderTopWidth: 0,
-          elevation: 0, // Remove default shadow
+          elevation: 0,
+          paddingBottom: insets.bottom, // Ensure safe area is respected
+          height: 70 + (insets.bottom || 0), // Match background height
         },
       }}
     >
@@ -92,7 +104,6 @@ export default function TabLayout() {
           tabBarLabel: "Home",
         }}
       />
-
       <Tabs.Screen
         name="water_management"
         options={{
@@ -119,7 +130,6 @@ export default function TabLayout() {
           tabBarLabel: "Power",
         }}
       />
-
       <Tabs.Screen
         name="microgrid"
         options={{
@@ -133,7 +143,6 @@ export default function TabLayout() {
           tabBarLabel: "Grid",
         }}
       />
-
       <Tabs.Screen
         name="lightControl"
         options={{

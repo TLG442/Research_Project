@@ -16,7 +16,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path, LinearGradient, Stop, Defs } from 'react-native-svg';
 import { useRouter } from 'expo-router';
-import { center } from '@shopify/react-native-skia';
+
+
 
 const { width, height } = Dimensions.get('window');
 const FREQUENCY = 7;
@@ -104,7 +105,7 @@ const water_management = () => {
   // Initial fetch and interval
   useEffect(() => {
     fetchFlowData();
-    const interval = setInterval(fetchFlowData, 300000000000); // Every 20 seconds
+    const interval = setInterval(fetchFlowData, 3000); // Every 20 seconds
 
     return () => clearInterval(interval);
   }, []);
@@ -234,27 +235,26 @@ const water_management = () => {
         </View>
       </View>
 
-      <View style={styles.card1}>
-        <View style={styles.cardContent}>
-          <Text>
-            <Text style={styles.LeakStatusHeader}>Leak status: </Text>
-            <Text style={styles.leakdata}>{leakStatus.status}</Text>
-          </Text>
-          <Text>
-            <Text style={styles.LeakStatusHeader}>Leak category: </Text>
-            <Text style={styles.leakdata}>{leakStatus.category}</Text>
-          </Text>
-          <Text>
-            <Text style={styles.LeakStatusHeader}>Severity: </Text>
-            <Text style={styles.leakdata}>{leakStatus.severity}</Text>
-          </Text>
 
-          <Text>
-            <Text style={styles.LeakStatusHeader1}>{pressureDatastatus} </Text>
-           
-          </Text>
-        </View>
-      </View>
+<TouchableOpacity style={styles.card1} onPress={() => router.push('../leak-details')}>
+  <View style={styles.cardContent}>
+    <Text>
+      <Text style={styles.LeakStatusHeader}>Leak status: </Text>
+      <Text style={styles.leakdata}>{leakStatus.status}</Text>
+    </Text>
+    <Text>
+      <Text style={styles.LeakStatusHeader}>Leak category: </Text>
+      <Text style={styles.leakdata}>{leakStatus.category}</Text>
+    </Text>
+    <Text>
+      <Text style={styles.LeakStatusHeader}>Severity: </Text>
+      <Text style={styles.leakdata}>{leakStatus.severity}</Text>
+    </Text>
+    <Text>
+      <Text style={styles.LeakStatusHeader1}>{pressureDatastatus}</Text>
+    </Text>
+  </View>
+</TouchableOpacity>
 
       <TouchableOpacity style={styles.insightsButton} onPress={() => router.push('../water-usag-insights')}>
         <Text style={styles.insightsButtonText}>Water usage Insights</Text>
@@ -329,7 +329,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   card1: {
-    backgroundColor: '#f0d8a2',
+    backgroundColor: '#e1e3e6',
     borderRadius: 20, // Rounded corners
     padding: 20,
     marginBottom: 20,
@@ -348,15 +348,15 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   LeakStatusHeader: {
-    fontSize: 19,
+    fontSize: 18,
     fontWeight: '600', // Semi-bold
     color: '#333', // Light grey color
   },
   LeakStatusHeader1: {
     alignItems: 'center',
-    fontSize: 19,
+    fontSize: 18,
     fontWeight: '600', // Semi-bold
-    color: 'red', // Light grey color
+    color: 'black', // Light grey color
   },
   
   flowLabel: {

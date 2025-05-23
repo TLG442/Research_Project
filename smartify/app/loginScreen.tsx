@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -8,15 +8,20 @@ import {
   Animated,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import Svg, { Path, LinearGradient as SvgLinearGradient, Stop, Defs } from 'react-native-svg';
 import { useRouter } from 'expo-router';
-import SignupScreen from './SignUp';
+import { supabase } from '../supabase/supabaseClient'; // Import Supabase client
 
 const LoginScreen = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current; // For fade-in animation
   const buttonScale = useRef(new Animated.Value(1)).current; // For button press animation
   const router = useRouter();
+  const [email, setEmail] = useState(''); // State for email input
+  const [password, setPassword] = useState(''); // State for password input
+  const [loading, setLoading] = useState(false); // State for loading indicator
 
   // Fade-in animation on mount
   React.useEffect(() => {
@@ -29,32 +34,61 @@ const LoginScreen = () => {
 
   // Button press animation
   const handlePressIn = () => {
-
-    router.replace('/(tabs)');
     Animated.spring(buttonScale, {
       toValue: 0.95,
       useNativeDriver: true,
     }).start();
-
   };
 
-
-  const AccountSignin = () => {
-
-    router.replace('/Signup');
-    Animated.spring(buttonScale, {
-      toValue: 0.95,
-      useNativeDriver: true,
-    }).start();
-
-  };
-  const handlePressOut = () => {
+  const handlePressOut = async () => {
     Animated.spring(buttonScale, {
       toValue: 1,
       useNativeDriver: true,
     }).start();
-    // Navigate to water management screen (adjust path as needed)
-    // router.push('/water-management');
+
+    setLoading(true); // Show loading indicator
+    try {
+      // Validate inputs
+      if (!email || !password) {
+        throw new Error('Please fill in all fields');
+      }
+
+      // Log in with Supabase
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data.session) {
+        // Successfully logged in, Supabase will handle session persistence
+        router.replace('/(tabs)'); // Redirect to tabs after login
+      } else {
+        throw new Error('Login failed: No session data returned');
+      }
+    } catch (error) {
+      console.error('Login failed:', error);
+  
+    } finally {
+      setLoading(false); // Hide loading indicator
+    }
+  };
+
+  const AccountSignin = () => {
+    Animated.spring(buttonScale, {
+      toValue: 0.95,
+      useNativeDriver: true,
+    }).start();
+
+    Animated.spring(buttonScale, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+
+    router.replace('./SignUp'); // Navigate to SignUp screen
   };
 
   return (
@@ -91,40 +125,51 @@ const LoginScreen = () => {
             placeholderTextColor="#aaa"
             keyboardType="email-address"
             autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
           />
           <TextInput
             style={styles.input}
             placeholder="Password"
             placeholderTextColor="#aaa"
             secureTextEntry
+            value={password}
+            onChangeText={setPassword}
           />
 
           <TouchableOpacity
             style={styles.forgotPassword}
             onPress={AccountSignin}
           >
-            <Text style={styles.forgotText}>Dont have an account?</Text>
+            <Text style={styles.forgotText}>Don't have an account?</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             activeOpacity={0.8}
             onPressIn={handlePressIn}
             onPressOut={handlePressOut}
+            disabled={loading} // Disable button while loading
           >
             <Animated.View style={[styles.button, { transform: [{ scale: buttonScale }] }]}>
-              <Svg height="100%" width="100%" style={StyleSheet.absoluteFill}>
-                <Defs>
-                  <SvgLinearGradient id="buttonGrad" x1="0" y1="0" x2="1" y2="1">
-                    <Stop offset="0" stopColor="#34baeb" stopOpacity="1" />
-                    <Stop offset="1" stopColor="#4682b4" stopOpacity="1" />
-                  </SvgLinearGradient>
-                </Defs>
-                <Path
-                  d={`M0 0 H${300} V${50} H0 Z`}
-                  fill="url(#buttonGrad)"
-                />
-              </Svg>
-              <Text style={styles.buttonText}>Login</Text>
+              {loading ? (
+                <ActivityIndicator size="large" color="#fff" />
+              ) : (
+                <>
+                  <Svg height="100%" width="100%" style={StyleSheet.absoluteFill}>
+                    <Defs>
+                      <SvgLinearGradient id="buttonGrad" x1="0" y1="0" x2="1" y2="1">
+                        <Stop offset="0" stopColor="#34baeb" stopOpacity="1" />
+                        <Stop offset="1" stopColor="#4682b4" stopOpacity="1" />
+                      </SvgLinearGradient>
+                    </Defs>
+                    <Path
+                      d={`M0 0 H${300} V${50} H0 Z`}
+                      fill="url(#buttonGrad)"
+                    />
+                  </Svg>
+                  <Text style={styles.buttonText}>Login</Text>
+                </>
+              )}
             </Animated.View>
           </TouchableOpacity>
         </View>

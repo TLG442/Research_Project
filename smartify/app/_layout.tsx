@@ -5,8 +5,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { supabase } from '../supabase/supabaseClient'; // Import the Supabase client
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -19,30 +18,48 @@ export default function RootLayout() {
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
 
-  // Check authentication state and redirect accordingly
+  // Check authentication state using Supabase and redirect accordingly
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const isAuthenticated = await AsyncStorage.getItem('isAuthenticated');
-        if (loaded) {
-          SplashScreen.hideAsync();
-          // Redirect based on auth state
-          if (isAuthenticated === 'true') {
-            router.replace('/(tabs)');// Go to tabs if authenticated
-          } else {
-            router.replace('/loginScreen'); // Go to login if not authenticated
-          }
+        if (!loaded) return; // Wait for fonts to load
+
+        // Check if there's an active Supabase session
+        const { data: { session } } = await supabase.auth.getSession();
+        const isAuthenticated = !!session; // True if session exists
+
+        SplashScreen.hideAsync();
+
+        // Redirect based on auth state
+        if (isAuthenticated) {
+          router.replace('/(tabs)'); // Go to tabs if authenticated
+        } else {
+          router.replace('/loginScreen'); // Go to login if not authenticated
         }
       } catch (error) {
         console.error('Error checking auth state:', error);
         // Fallback to login screen on error
-        if (loaded) {
-          SplashScreen.hideAsync();
-          router.replace('/loginScreen');
-        }
+        SplashScreen.hideAsync();
+        router.replace('/loginScreen');
       }
     };
+
     checkAuth();
+
+    // Listen for auth state changes (e.g., user logs in/out)
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      const isAuthenticated = !!session;
+      if (isAuthenticated) {
+        router.replace('/(tabs)');
+      } else {
+        router.replace('/loginScreen');
+      }
+    });
+
+    // Cleanup listener on unmount
+    return () => {
+      authListener?.subscription?.unsubscribe();
+    };
   }, [loaded, router]);
 
   if (!loaded) {
