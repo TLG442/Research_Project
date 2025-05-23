@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import Svg, { Path, LinearGradient as SvgLinearGradient, Stop, Defs } from 'react-native-svg';
 import { useNavigation, useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { supabase } from '../supabase/supabaseClient'; // Import Supabase client
 
 const Signup = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -22,6 +22,7 @@ const Signup = () => {
   const [password, setPassword] = React.useState('');
   const [confirmPassword, setConfirmPassword] = React.useState('');
   const navigation = useNavigation();
+
   // Fade-in animation on mount
   React.useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -31,9 +32,9 @@ const Signup = () => {
     }).start();
   }, [fadeAnim]);
 
-    React.useEffect(() => {
-      navigation.setOptions({ headerShown: false });
-    }, [navigation]);
+  React.useEffect(() => {
+    navigation.setOptions({ headerShown: false });
+  }, [navigation]);
 
   // Button press animation
   const handlePressIn = () => {
@@ -58,16 +59,25 @@ const Signup = () => {
         throw new Error('Passwords do not match');
       }
 
-      // Simulate signup logic (replace with your actual authentication/signup API call)
-      console.log('Signing up with:', { email, password });
-      // Example: await fetch('your-signup-endpoint', { method: 'POST', body: JSON.stringify({ email, password }) });
+      // Sign up with Supabase
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
 
-      // On successful signup, save auth state
-      await AsyncStorage.setItem('isAuthenticated', 'true');
-      router.replace('/(tabs)'); // Redirect to tabs after signup
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (data.user) {
+        Alert.alert('Success', 'Signup successful! Please check your email to verify your account.');
+        router.replace('/loginScreen'); // Redirect to login after signup
+      } else {
+        throw new Error('Signup failed: No user data returned');
+      }
     } catch (error) {
       console.error('Signup failed:', error);
-     
+    
     }
   };
 
@@ -166,6 +176,9 @@ const Signup = () => {
   );
 };
 
+export default Signup;
+
+// Styles (assumed to be defined elsewhere, but included here for completeness)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -178,7 +191,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    padding: 20,
   },
   logoContainer: {
     alignItems: 'center',
@@ -188,31 +201,25 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: 'bold',
     color: '#fff',
-    letterSpacing: 1,
   },
   subtitle: {
     fontSize: 16,
-    color: '#e0f7ff',
-    marginTop: 5,
+    color: '#fff',
+    marginTop: 10,
   },
   formContainer: {
     width: '100%',
+    maxWidth: 400,
     alignItems: 'center',
   },
   input: {
-    width: '90%',
-    height: 50,
+    width: '100%',
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 25,
-    paddingHorizontal: 20,
-    marginVertical: 10,
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 15,
     fontSize: 16,
     color: '#333',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
   },
   button: {
     width: 200,
@@ -221,7 +228,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 25,
     overflow: 'hidden',
-    marginTop: 20,
   },
   buttonText: {
     position: 'absolute',
@@ -230,11 +236,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   loginLink: {
-    marginTop: 15,
+    marginTop: 20,
   },
   loginText: {
-    color: '#e0f7ff',
-    fontSize: 14,
+    color: '#fff',
+    fontSize: 16,
   },
   waveContainer: {
     position: 'absolute',
@@ -242,5 +248,3 @@ const styles = StyleSheet.create({
     width: '100%',
   },
 });
-
-export default Signup;
