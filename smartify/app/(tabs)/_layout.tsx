@@ -96,15 +96,15 @@ export default function TabLayout() {
         options={{
           tabBarIcon: ({ color, focused }) => (
             <MaterialCommunityIcons
-              name={focused ? "home" : "home-outline"}
+              name={focused ? "water" : "water-outline"}
               size={32}
               color={color}
             />
           ),
-          tabBarLabel: "Home",
+          tabBarLabel: "Water",
         }}
       />
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name="water_management"
         options={{
           tabBarIcon: ({ color, focused }) => (
@@ -116,7 +116,7 @@ export default function TabLayout() {
           ),
           tabBarLabel: "Water",
         }}
-      />
+      /> */}
       <Tabs.Screen
         name="electric_usage"
         options={{
@@ -144,7 +144,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="lightControl"
+        name="light_control"
         options={{
           tabBarIcon: ({ color, focused }) => (
             <MaterialCommunityIcons

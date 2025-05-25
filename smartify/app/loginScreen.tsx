@@ -13,17 +13,17 @@ import {
 } from 'react-native';
 import Svg, { Path, LinearGradient as SvgLinearGradient, Stop, Defs } from 'react-native-svg';
 import { useRouter } from 'expo-router';
-import { supabase } from '../supabase/supabaseClient'; // Import Supabase client
+import { supabase } from '../supabase/supabaseClient';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 
 const LoginScreen = () => {
-  const fadeAnim = useRef(new Animated.Value(0)).current; // For fade-in animation
-  const buttonScale = useRef(new Animated.Value(1)).current; // For button press animation
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const buttonScale = useRef(new Animated.Value(1)).current;
   const router = useRouter();
-  const [email, setEmail] = useState(''); // State for email input
-  const [password, setPassword] = useState(''); // State for password input
-  const [loading, setLoading] = useState(false); // State for loading indicator
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  // Fade-in animation on mount
   React.useEffect(() => {
     Animated.timing(fadeAnim, {
       toValue: 1,
@@ -32,7 +32,6 @@ const LoginScreen = () => {
     }).start();
   }, [fadeAnim]);
 
-  // Button press animation
   const handlePressIn = () => {
     Animated.spring(buttonScale, {
       toValue: 0.95,
@@ -46,14 +45,12 @@ const LoginScreen = () => {
       useNativeDriver: true,
     }).start();
 
-    setLoading(true); // Show loading indicator
+    setLoading(true);
     try {
-      // Validate inputs
       if (!email || !password) {
         throw new Error('Please fill in all fields');
       }
 
-      // Log in with Supabase
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -64,16 +61,17 @@ const LoginScreen = () => {
       }
 
       if (data.session) {
-        // Successfully logged in, Supabase will handle session persistence
+        // Save the email to AsyncStorage
+        await AsyncStorage.setItem('userEmail', email);
         router.replace('/(tabs)'); // Redirect to tabs after login
       } else {
         throw new Error('Login failed: No session data returned');
       }
     } catch (error) {
       console.error('Login failed:', error);
-  
+      // Alert.alert('Login Failed', error.message || 'An error occurred during login');
     } finally {
-      setLoading(false); // Hide loading indicator
+      setLoading(false);
     }
   };
 
@@ -88,7 +86,7 @@ const LoginScreen = () => {
       useNativeDriver: true,
     }).start();
 
-    router.replace('./SignUp'); // Navigate to SignUp screen
+    router.replace('./Signup');
   };
 
   return (
@@ -96,7 +94,6 @@ const LoginScreen = () => {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      {/* Background Gradient */}
       <View style={styles.background}>
         <Svg height="100%" width="100%" style={StyleSheet.absoluteFill}>
           <Defs>
@@ -109,15 +106,12 @@ const LoginScreen = () => {
         </Svg>
       </View>
 
-      {/* Content */}
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
-        {/* Logo or Header */}
         <View style={styles.logoContainer}>
           <Text style={styles.logoText}>Smartify</Text>
           <Text style={styles.subtitle}>Control Your Smart Home, Seamlessly</Text>
         </View>
 
-        {/* Login Form */}
         <View style={styles.formContainer}>
           <TextInput
             style={styles.input}
@@ -148,7 +142,7 @@ const LoginScreen = () => {
             activeOpacity={0.8}
             onPressIn={handlePressIn}
             onPressOut={handlePressOut}
-            disabled={loading} // Disable button while loading
+            disabled={loading}
           >
             <Animated.View style={[styles.button, { transform: [{ scale: buttonScale }] }]}>
               {loading ? (
@@ -175,7 +169,6 @@ const LoginScreen = () => {
         </View>
       </Animated.View>
 
-      {/* Wave Decoration */}
       <View style={styles.waveContainer}>
         <Svg height="150" width="100%">
           <Path
