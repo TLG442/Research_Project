@@ -14,6 +14,9 @@ import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import com.example.yourapp.MoveLogger
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class LocationLoggingService : Service(), LocationListener {
 
@@ -101,7 +104,7 @@ class LocationLoggingService : Service(), LocationListener {
                 getLatitude = { currentLatitude },
                 getLongitude = { currentLongitude },
                 getRoom = { matchedRoomName },
-                getUserDetails = { "User 1" }
+                getTimestamp = { getCurrentFormattedTimestamp() }
             )
             isLoggingStarted = true
         } else if (matchedRoomName == null && isLoggingStarted) {
@@ -131,3 +134,9 @@ class LocationLoggingService : Service(), LocationListener {
     override fun onProviderEnabled(provider: String) {}
     override fun onProviderDisabled(provider: String) {}
 }
+
+    private fun getCurrentFormattedTimestamp(): String {
+         val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault()).apply {
+            timeZone = java.util.TimeZone.getTimeZone("UTC")}
+        return dateFormat.format(Date())
+    }

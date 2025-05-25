@@ -298,7 +298,7 @@ class RoomOptionsActivity : AppCompatActivity() {
             currentRoomTextView.text = matchedRoomName
         } else {
             currentRoomName = null
-            currentRoomTextView.text = "Current Room not Found!"
+            currentRoomTextView.text = "Room not Found!"
         }
 
 

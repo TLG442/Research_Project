@@ -18,11 +18,11 @@ class MoveLogger(private val serverUrl: String) {
         getLatitude: () -> Double,
         getLongitude: () -> Double,
         getRoom: () -> String,
-        getUserDetails: () -> String
+        getTimestamp: () -> String
     ) {
         timer = Timer()
         timer?.scheduleAtFixedRate(0, 10000) { // 10,000ms = 10 sec
-            logUserMove(getLatitude(), getLongitude(), getRoom(), getUserDetails())
+            logUserMove(getLatitude(), getLongitude(), getRoom(), getTimestamp())
         }
     }
 
