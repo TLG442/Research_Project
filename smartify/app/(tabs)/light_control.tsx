@@ -1,6 +1,6 @@
 import { useAppContext } from "@/context/AppContext";
 import DatabaseHelper from "@/data/database";
-import React, { useEffect } from "react";
+import React, { useEffect , useState } from "react";
 import {
   View,
   Text,
@@ -14,11 +14,12 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context"; // For handling safe areas
 import { useRouter } from "expo-router";
 import * as Location from "expo-location";
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const LightControl = () => {
   const { calibratedRooms, setCalibratedRooms } = useAppContext();
   const insets = useSafeAreaInsets();
-
+   const [username, setUsername] = useState('user');
+    const [greeting, setGreeting] = useState('Good Morning');
   const router = useRouter();
 
   const checkLocationPermissions = async () => {
@@ -35,6 +36,39 @@ const LightControl = () => {
     }
     return true;
   };
+useEffect(() => {
+    const fetchUsername = async () => {
+      try {
+        const email = await AsyncStorage.getItem('userEmail');
+        if (email) {
+          const usernamePart = email.split('@')[0];
+          setUsername(usernamePart.charAt(0).toUpperCase() + usernamePart.slice(1));
+        }
+      } catch (error) {
+        console.error('Error fetching username:', error);
+      }
+    };
+
+    fetchUsername();
+
+    // Update greeting based on current time
+    const updateGreeting = () => {
+      const hour = new Date().getHours();
+      if (hour >= 5 && hour < 12) {
+        setGreeting('Good Morning');
+      } else if (hour >= 12 && hour < 17) {
+        setGreeting('Good Afternoon');
+      } else if (hour >= 17 && hour < 22) {
+        setGreeting('Good Evening');
+      } else {
+        setGreeting('Good Night');
+      }
+    };
+
+    updateGreeting(); // Set initial greeting
+    const interval = setInterval(updateGreeting, 60000); // Update every minute
+    return () => clearInterval(interval); // Cleanup interval on unmount
+  }, []);
 
   useEffect(() => {
     const checkPermissions = async () => {
@@ -61,16 +95,11 @@ const LightControl = () => {
     >
       <View style={styles.header}>
         <View style={styles.headerTextContainer}>
-          <Text style={styles.goodMorning}>Good Morning,</Text>
-          <Text style={styles.userName}>Malmi</Text>
+           <Text style={styles.goodMorning}>{greeting},</Text>
+           <Text style={styles.userName}>{username}</Text>
         </View>
         <View style={styles.headerIcons}>
-          <TouchableOpacity>
-            <Image
-              source={require("../../assets/images/bell.png")}
-              style={styles.icon}
-            />
-          </TouchableOpacity>
+     
           <TouchableOpacity>
             <Image
               source={require("../../assets/images/settings_iccon-removebg-preview.png")}

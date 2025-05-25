@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,43 +10,298 @@ import {
   Dimensions,
   PanResponder,
   PanResponderGestureState,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context"; // For handling safe areas
+  ScrollView,
+  RefreshControl,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Svg, { Path, LinearGradient, Stop, Defs } from 'react-native-svg';
+import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import Svg, { Path, LinearGradient, Stop, Defs } from "react-native-svg";
-import { useRouter } from "expo-router";
-const { width, height } = Dimensions.get("window");
+
+const { width, height } = Dimensions.get('window');
 const FREQUENCY = 7;
 const INITIAL_AMPLITUDE = 20;
 const INITIAL_VERTICAL_OFFSET = 100;
-const HomeScreen = () => {
+
+const water_management = () => {
   const insets = useSafeAreaInsets();
-  const waveAnim = useRef(new Animated.Value(0)).current; // Initial position
+  const waveAnim = useRef(new Animated.Value(0)).current;
   const animation = useRef(new Animated.Value(0)).current;
   const verticalOffset = useRef(
     new Animated.Value(INITIAL_VERTICAL_OFFSET)
   ).current;
   const amplitude = useRef(new Animated.Value(INITIAL_AMPLITUDE)).current;
+  const router = useRouter();
+  const [isPumpOn, setIsPumpOn] = useState(false);
+  const [flowRate, setFlowRate] = useState(0);
+  const [refreshing, setRefreshing] = useState(false); // State for refresh indicator
+  const [leakStatus, setLeakStatus] = useState({ status: '', category: '' , severity : ""});
+  const [pressureDatastatus, setpressureDatastatus] = useState('');
+  const [username, setUsername] = useState('user');
+  const [greeting, setGreeting] = useState('Good Morning');
+  // Fetch data from the API
+  const fetchFlowData = async () => {
+    try {
+      const response = await fetch('https://04ss9x7lah.execute-api.eu-north-1.amazonaws.com/dev');
+      const data = await response.json();
+      const parsedBody = JSON.parse(data.body);
+      const flowMlPerSecond = parsedBody.flow_ml_s;
+      setFlowRate(flowMlPerSecond);
+    } catch (error) {
+      console.error('Error fetching flow data:', error);
+    }
+  };
+useEffect(() => {
+    const fetchUsername = async () => {
+      try {
+        const email = await AsyncStorage.getItem('userEmail');
+        if (email) {
+          const usernamePart = email.split('@')[0];
+          setUsername(usernamePart.charAt(0).toUpperCase() + usernamePart.slice(1));
+        }
+      } catch (error) {
+        console.error('Error fetching username:', error);
+      }
+    };
+
+    fetchUsername();
+
+    // Update greeting based on current time
+    const updateGreeting = () => {
+      const hour = new Date().getHours();
+      if (hour >= 5 && hour < 12) {
+        setGreeting('Good Morning');
+      } else if (hour >= 12 && hour < 17) {
+        setGreeting('Good Afternoon');
+      } else if (hour >= 17 && hour < 22) {
+        setGreeting('Good Evening');
+      } else {
+        setGreeting('Good Night');
+      }
+    };
+
+    updateGreeting(); // Set initial greeting
+    const interval = setInterval(updateGreeting, 60000); // Update every minute
+    return () => clearInterval(interval); // Cleanup interval on unmount
+  }, []);
+  const fetchPressuredata = async () => {
+    try {
+      const response = await fetch('https://oqyqqcdzli.execute-api.eu-north-1.amazonaws.com/dev');
+      const data = await response.json();
+      const parsedBody = JSON.parse(data.body);
+      console.log(parsedBody); 
+      
+      if(parsedBody.message === 'No pressure values found in DynamoDB') {
+        setpressureDatastatus('No pressure values detected');
+      } else {
+        // Check if pressure_values exists and is an array
+        if (parsedBody.pressure_values && Array.isArray(parsedBody.pressure_values)) {
+          try {
+            const classifyResponse = await fetch('https://researchmodelhosting.uc.r.appspot.com/classify_leak', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                values: parsedBody.pressure_values,
+                topology: 1.0,
+                sensor: 1.0
+              }),
+            });
+            
+            const classifyData = await classifyResponse.json();
+            // Set status based on classification result
+            // Adjust this based on your actual response structure
+            setpressureDatastatus(classifyData.leak_status || 'Pressure data processed');
+            
+          } catch (classificationError) {
+            console.error('Error classifying leak:', classificationError);
+            setpressureDatastatus('Error processing pressure data');
+          }
+        } else {
+          setpressureDatastatus('Invalid pressure data format');
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching pressure data:', error);
+      setpressureDatastatus('Error fetching data');
+    }
+  };
+
+
+  // Handle pull-to-refresh
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchFlowData(); 
+    await fetchPressuredata();// Make the API call
+    setRefreshing(false);
+  };
+
+  // Initial fetch and interval
+  useEffect(() => {
+    fetchFlowData();
+    const interval = setInterval(fetchFlowData, 3000); // Every 20 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const flowLPM = (flowRate / 1000) * 60;
+
+  const animatedPath = animation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [
+      `M0,${INITIAL_VERTICAL_OFFSET} 
+       Q${width / 4},${INITIAL_VERTICAL_OFFSET + INITIAL_AMPLITUDE} 
+       ${width / 2},${INITIAL_VERTICAL_OFFSET} 
+       T${width},${INITIAL_VERTICAL_OFFSET} 
+       L${width},${height} 
+       L0,${height} Z`,
+      `M0,${INITIAL_VERTICAL_OFFSET} 
+       Q${width / 4},${INITIAL_VERTICAL_OFFSET - INITIAL_AMPLITUDE} 
+       ${width / 2},${INITIAL_VERTICAL_OFFSET} 
+       T${width},${INITIAL_VERTICAL_OFFSET} 
+       L${width},${height} 
+       L0,${height} Z`,
+    ],
+  });
+
+  const sendPumpControl = async (metrics: number) => {
+    try {
+      const response = await fetch('https://t73yk0ldda.execute-api.eu-north-1.amazonaws.com/dev/publish', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          metrics: metrics,
+        }),
+      });
+      const result = await response.json();
+      console.log(`Pump control response (metrics=${metrics}):`, result);
+    } catch (error) {
+      console.error(`Error sending pump control (metrics=${metrics}):`, error);
+    }
+  };
+
+  const panResponder = PanResponder.create({
+    onMoveShouldSetPanResponder: () => true,
+    onPanResponderMove: (_, gestureState: PanResponderGestureState) => {
+      const { moveY } = gestureState;
+      if (moveY > INITIAL_VERTICAL_OFFSET) {
+        verticalOffset.setValue(Math.min(height, moveY));
+        const newAmplitude = Math.max(0, (height - moveY) * 0.025);
+        amplitude.setValue(newAmplitude);
+      }
+    },
+  });
+
+  const handleSwitchToggle = (value: boolean) => {
+    setIsPumpOn(value);
+    if (value) {
+      sendPumpControl(45);
+    } else {
+      sendPumpControl(75);
+    }
+  };
+
+  useEffect(() => {
+    const animate = () => {
+      Animated.sequence([
+        Animated.timing(animation, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(animation, {
+          toValue: 0,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ]).start(() => animate());
+    };
+    animate();
+  }, []);
+
+  const AnimatedPath = Animated.createAnimatedComponent(Path);
+  const AnimatedSvg = Animated.createAnimatedComponent(Svg);
 
   return (
-    <View
-      style={[
-        styles.container,
-        { paddingTop: insets.top, paddingBottom: insets.bottom },
-      ]}
+    <ScrollView
+      style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
     >
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerTextContainer}>
-          {" "}
-          {/* Added container for text */}
-          <Text style={styles.goodMorning}>Home screen,</Text>
+          <Text style={styles.goodMorning}>{greeting},</Text>
+          <Text style={styles.userName}>{username}</Text>
+        </View>
+        <View style={styles.headerIcons}>
+
+          <TouchableOpacity onPress={() => router.push('../profile')}>
+            <Image source={require('../../assets/images/settings_iccon-removebg-preview.png')} style={styles.icon} />
+          </TouchableOpacity>
         </View>
         <View style={styles.headerIcons}> {/* Container for icons */}</View>
       </View>
-    </View>
+
+      <View style={styles.card}>
+        <View style={styles.cardContent}>
+          <Text style={styles.flowRate}>{flowLPM.toFixed(2)} LPS</Text>
+          <Text style={styles.flowLabel}>Current flow rate</Text>
+          <View style={styles.waterPumpContainer}>
+            <Text style={styles.waterPumpLabel}>Water pump</Text>
+            <Switch onValueChange={handleSwitchToggle} value={isPumpOn} />
+          </View>
+        </View>
+
+        <View style={styles.waveContainer1} {...panResponder.panHandlers}>
+          <AnimatedSvg style={styles.canvas} width={width} height={height}>
+            <Defs>
+              <LinearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+                <Stop offset="0" stopColor="cyan" stopOpacity="1" />
+                <Stop offset="1" stopColor="blue" stopOpacity="1" />
+              </LinearGradient>
+            </Defs>
+            <AnimatedPath d={animatedPath} fill="url(#grad)" />
+          </AnimatedSvg>
+        </View>
+      </View>
+
+
+<TouchableOpacity style={styles.card1} onPress={() => router.push('../leak-details')}>
+  <View style={styles.cardContent}>
+    <Text>
+      <Text style={styles.LeakStatusHeader}>Leak status: </Text>
+      <Text style={styles.leakdata}>{leakStatus.status}</Text>
+    </Text>
+    <Text>
+      <Text style={styles.LeakStatusHeader}>Leak category: </Text>
+      <Text style={styles.leakdata}>{leakStatus.category}</Text>
+    </Text>
+    <Text>
+      <Text style={styles.LeakStatusHeader}>Severity: </Text>
+      <Text style={styles.leakdata}>{leakStatus.severity}</Text>
+    </Text>
+    <Text>
+      <Text style={styles.LeakStatusHeader1}>{pressureDatastatus}</Text>
+    </Text>
+  </View>
+</TouchableOpacity>
+
+      <TouchableOpacity style={styles.insightsButton} onPress={() => router.push('../water-usag-insights')}>
+        <Text style={styles.insightsButtonText}>Water usage Insights</Text>
+      </TouchableOpacity>
+      <Text style={styles.insightsLabel}>Track your water usage and detect patterns over time.</Text>
+    </ScrollView>
   );
 };
+
+
+
+
 
 const styles = StyleSheet.create({
   container: {
@@ -83,7 +338,8 @@ const styles = StyleSheet.create({
   },
   waveContainer1: {
     height: 200, // Height of the wave area
-    overflow: "hidden", // Hide the wave as it moves out of the container
+    overflow: 'hidden',
+    borderRadius: 20, // Hide the wave as it moves out of the container
   },
   wave: {
     width: 400, // Width of the wave (should be larger than container)
@@ -97,8 +353,19 @@ const styles = StyleSheet.create({
     marginLeft: 10, // Space between icons
   },
   card: {
-    backgroundColor: "white",
-    borderRadius: 10, // Rounded corners
+    backgroundColor: '#e1e3e6',
+    borderRadius: 20, // Rounded corners
+    padding: 20,
+    marginBottom: 20,
+    elevation: 3, // For Android shadow (works well with elevation)
+    shadowColor: '#000', // For iOS shadow
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  card1: {
+    backgroundColor: '#e1e3e6',
+    borderRadius: 20, // Rounded corners
     padding: 20,
     marginBottom: 20,
     elevation: 3, // For Android shadow (works well with elevation)
@@ -115,6 +382,18 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#333",
   },
+  LeakStatusHeader: {
+    fontSize: 18,
+    fontWeight: '600', // Semi-bold
+    color: '#333', // Light grey color
+  },
+  LeakStatusHeader1: {
+    alignItems: 'center',
+    fontSize: 18,
+    fontWeight: '600', // Semi-bold
+    color: 'black', // Light grey color
+  },
+  
   flowLabel: {
     fontSize: 16,
     color: "#777",
@@ -127,6 +406,11 @@ const styles = StyleSheet.create({
   waterPumpLabel: {
     fontSize: 16,
     color: "#333",
+    marginRight: 10,
+  },
+  leakdata: {
+    fontSize: 16,
+    color: '#333',
     marginRight: 10,
   },
   waveImage: {
@@ -149,8 +433,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     alignItems: "center",
     marginBottom: 10,
-    width: 300,
-    alignSelf: "center", // Centers the button horizontally
+    width: 230,
+    alignSelf: 'center', // Centers the button horizontally
   },
 
   insightsButtonText: {
@@ -191,4 +475,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
+export default water_management;
