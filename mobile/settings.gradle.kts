@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "GeoTag"
+rootProject.name = "Smartify"
 include(":app")

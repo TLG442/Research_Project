@@ -1,5 +1,6 @@
-package com.example.geotag
+package com.example.smartify
 
+import com.example.geotag.R
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -282,7 +283,7 @@ class RoomOptionsActivity : AppCompatActivity() {
             actualRoomTextView.text = ""
             return
         }
-        currentRoomTextView.text = "Current Room not Found!"
+        currentRoomTextView.text = "Room not Found!"
         // Determine which room (if any) the current coordinates fall into
         var matchedRoomName: String? = null
         for (room in rooms) {
@@ -297,7 +298,7 @@ class RoomOptionsActivity : AppCompatActivity() {
             currentRoomTextView.text = matchedRoomName
         } else {
             currentRoomName = null
-            currentRoomTextView.text = "Current Room not Found!"
+            currentRoomTextView.text = "Room not Found!"
         }
 
 

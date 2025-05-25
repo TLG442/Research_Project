@@ -1,4 +1,4 @@
-package com.example.geotag
+package com.example.smartify
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -23,6 +23,7 @@ import androidx.cardview.widget.CardView
 import android.widget.LinearLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.geotag.R
 import com.google.android.material.button.MaterialButton
 
 class MainActivity : AppCompatActivity(), LocationListener {

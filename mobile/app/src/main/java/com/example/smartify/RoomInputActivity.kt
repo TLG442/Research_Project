@@ -1,4 +1,4 @@
-package com.example.geotag
+package com.example.smartify
 
 import android.content.Intent
 import android.os.Bundle
@@ -6,6 +6,8 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.geotag.R
+
 internal var userId: Int = -1 // Class-level variable for userId
 class RoomInputActivity : AppCompatActivity() {
 

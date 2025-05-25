@@ -1,4 +1,4 @@
-package com.example.geotag
+package com.example.smartify
 
 import org.junit.Test
 
