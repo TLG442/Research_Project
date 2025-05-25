@@ -28,6 +28,7 @@ const ElectricUsage = () => {
 
   const [data, setData] = useState<Data | null>(null);
   const [loading, setLoading] = useState(true);
+  const [forecast, setForecast] = useState<number | null>(null);
 
   // Function to fetch data
   const fetchData = async () => {
@@ -41,15 +42,26 @@ const ElectricUsage = () => {
       setLoading(false);
     }
   };
+  const fetchForecast = async () => {
+    try {
+      const response = await fetch("http://65.1.109.254/forecast_hourly");
+      const result = await response.json();
+      setForecast(result.adjusted_prediction); // or use result.forecast_hourly_kWh
+    } catch (error) {
+      console.error("Error fetching forecast:", error);
+    }
+  };
 
-  // Fetch data every 10 seconds
   useEffect(() => {
-    fetchData(); // Initial fetch
-    const interval = setInterval(fetchData, 1000); // Fetch every 10s
+    fetchData(); // existing real-time data
+    fetchForecast(); // call new forecast function too
+    const interval = setInterval(() => {
+      fetchData();
+      fetchForecast();
+    }, 10000); // fetch every 10s
 
-    return () => clearInterval(interval); // Cleanup on unmount
+    return () => clearInterval(interval);
   }, []);
-
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
@@ -60,6 +72,12 @@ const ElectricUsage = () => {
         <ActivityIndicator size="large" color="#FF6347" />
       ) : (
         <>
+          <TouchableOpacity
+            style={styles.insights}
+            onPress={() => router.push("../electric_energy_analysis")}
+          >
+            <Text style={styles.insightsText}>Energy Analysis</Text>
+          </TouchableOpacity>
           <View style={styles.cardsContainer}>
             {/* Current flow */}
             <View style={styles.card}>
@@ -95,15 +113,31 @@ const ElectricUsage = () => {
             </Text>
           </View>
 
-          {/* Navigate to Insights */}
-          <TouchableOpacity
-            style={styles.insights}
-            onPress={() => router.push("../electric_usage_insights")}
-          >
-            <Text style={styles.insightsText}>Insights</Text>
-          </TouchableOpacity>
-          <View style={styles.promptBox}>
-            <Text style={styles.promptText}>{insightsPrompt}</Text>
+          <View style={styles.buttonRow}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => router.push("../electric_usage_insights")}
+            >
+              <Text style={styles.buttonText}>Insights</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => router.push("../electric_devices")}
+            >
+              <Text style={styles.buttonText}>Electrical Devices</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.forecastContainer}>
+            <MaterialCommunityIcons
+              name="chart-line"
+              size={20}
+              color="#4A90E2"
+            />
+            <Text style={styles.forecastTitle}>Forecasted Hourly Usage</Text>
+            <Text style={styles.forecastValue}>
+              {forecast !== null ? forecast.toFixed(2) : "0.00"} kWh
+            </Text>
           </View>
         </>
       )}
@@ -126,6 +160,13 @@ const styles = StyleSheet.create({
     padding: 16,
     width: "48%",
     alignItems: "center",
+    borderColor: "#4FC3F7",
+    borderWidth: 1,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
   },
   cardTitle: { fontSize: 14, color: "#666", marginTop: 8 },
   cardValue: {
@@ -142,7 +183,14 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 20,
     alignItems: "center",
-    marginBottom: 40,
+    marginBottom: 10,
+    borderColor: "#EF9A9A",
+    borderWidth: 1,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
   },
   totalPowerTitle: {
     fontSize: 24,
@@ -169,6 +217,52 @@ const styles = StyleSheet.create({
     padding: 16,
     marginTop: 20,
     alignItems: "center",
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 16,
+  },
+  actionButton: {
+    flex: 1,
+    marginHorizontal: 5,
+    backgroundColor: "#E3F2FD",
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: "center",
+    elevation: 2,
+  },
+  buttonText: {
+    color: "#1E88E5",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+
+  forecastContainer: {
+    backgroundColor: "#f8f8f8",
+    borderRadius: 12,
+    padding: 20,
+    alignItems: "center",
+    marginBottom: 32,
+    borderColor: "#4FC3F7",
+    borderWidth: 1,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  forecastTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#0288D1",
+    marginTop: 10,
+  },
+  forecastValue: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#01579B",
+    marginTop: 6,
   },
 });
 

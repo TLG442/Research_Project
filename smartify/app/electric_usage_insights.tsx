@@ -1,3 +1,5 @@
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Stack } from "expo-router";
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { LineChart } from "react-native-chart-kit";
@@ -55,54 +57,64 @@ const ElectricUsageInsights = () => {
   const voltageData = data.map((item) => parseFloat(item.payload.voltage));
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer} // Apply alignItems here
-    >
-      <Text style={styles.title}>User Insights</Text>
-
-      {/* Energy Consumption Over Time Line Chart */}
-      <View style={styles.chartCard}>
-        <Text style={styles.chartTitle}>
-          Energy Consumption Over Time (Wh/s)
+    <>
+      <Stack.Screen options={{ title: "", headerBackTitleVisible: false }} />
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer} // Apply alignItems here
+      >
+        <Text style={styles.title}>
+          <MaterialCommunityIcons
+            name="lightning-bolt"
+            size={28}
+            color="#007BFF"
+          />{" "}
+          Real Time Tracking
         </Text>
-        <LineChart
-          data={{
-            datasets: [
-              {
-                data: energyConsumedData,
-                color: (opacity = 1) => `rgba(52, 172, 235, ${opacity})`,
-                strokeWidth: 2,
-              },
-            ],
-          }}
-          width={350}
-          height={220}
-          chartConfig={chartConfig}
-          style={styles.chart}
-        />
-      </View>
 
-      {/* Voltage Over Time Line Chart */}
-      <View style={styles.chartCard}>
-        <Text style={styles.chartTitle}>Voltage Over Time (v/s)</Text>
-        <LineChart
-          data={{
-            datasets: [
-              {
-                data: voltageData,
-                color: (opacity = 1) => `rgba(255, 99, 132, ${opacity})`,
-                strokeWidth: 2,
-              },
-            ],
-          }}
-          width={350}
-          height={220}
-          chartConfig={chartConfig}
-          style={styles.chart}
-        />
-      </View>
-    </ScrollView>
+        {/* Energy Consumption Over Time Line Chart */}
+        <View style={styles.chartCard}>
+          <Text style={styles.chartTitle}>
+            Energy Consumption Over Time (Wh/s)
+          </Text>
+          <LineChart
+            data={{
+              datasets: [
+                {
+                  data: energyConsumedData,
+                  color: (opacity = 1) => `rgba(52, 172, 235, ${opacity})`,
+                  strokeWidth: 2,
+                },
+              ],
+            }}
+            width={350}
+            height={220}
+            chartConfig={chartConfig}
+            style={styles.chart}
+          />
+        </View>
+
+        {/* Voltage Over Time Line Chart */}
+        <View style={styles.chartCard}>
+          <Text style={styles.chartTitle}>Voltage Over Time (v/s)</Text>
+          <LineChart
+            data={{
+              datasets: [
+                {
+                  data: voltageData,
+                  color: (opacity = 1) => `rgba(255, 99, 132, ${opacity})`,
+                  strokeWidth: 2,
+                },
+              ],
+            }}
+            width={350}
+            height={220}
+            chartConfig={chartConfig}
+            style={styles.chart}
+          />
+        </View>
+      </ScrollView>
+    </>
   );
 };
 
@@ -121,7 +133,13 @@ const chartConfig = {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "white", padding: 20 },
   contentContainer: { alignItems: "center" }, // Apply the alignItems here
-  title: { fontSize: 28, fontWeight: "bold", color: "#333", marginBottom: 20 },
+  title: {
+    fontSize: 26,
+    fontWeight: "bold",
+    color: "#1c1c1e",
+    marginBottom: 20,
+    textAlign: "center",
+  },
   chartCard: {
     backgroundColor: "#fff",
     borderRadius: 10,
