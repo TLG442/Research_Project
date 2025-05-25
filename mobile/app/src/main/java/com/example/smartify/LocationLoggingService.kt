@@ -1,4 +1,4 @@
-package com.example.geotag
+package com.example.smartify
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -14,7 +14,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import com.example.yourapp.MoveLogger
-import com.example.geotag.RoomDatabaseHelper
 
 class LocationLoggingService : Service(), LocationListener {
 
@@ -102,7 +101,7 @@ class LocationLoggingService : Service(), LocationListener {
                 getLatitude = { currentLatitude },
                 getLongitude = { currentLongitude },
                 getRoom = { matchedRoomName },
-                getUserDetails = { "User 1" } // Customize as needed for real user details
+                getUserDetails = { "User 1" }
             )
             isLoggingStarted = true
         } else if (matchedRoomName == null && isLoggingStarted) {

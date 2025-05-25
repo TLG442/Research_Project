@@ -1,4 +1,4 @@
-package com.example.geotag
+package com.example.smartify
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,6 +7,7 @@ import android.os.Looper
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.geotag.R
 
 class SplashActivity : AppCompatActivity() {
 

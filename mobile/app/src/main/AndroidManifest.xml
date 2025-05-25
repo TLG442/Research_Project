@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.geotag">
+    package="com.example.smartify">
 
     <!-- Required for precise location (GPS) -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -39,38 +39,38 @@
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-        <service android:name=".LocationLoggingService" />
+        <service android:name="com.example.smartify.LocationLoggingService" />
         <!-- Example activities -->
         <activity
-            android:name=".RoomOptionsActivity"
+            android:name="com.example.smartify.RoomOptionsActivity"
             android:theme="@style/Theme.GeoTagblue"
             android:exported="false" />
         <activity
-            android:name=".CalibratedRoomsActivity"
+            android:name="com.example.smartify.CalibratedRoomsActivity"
             android:theme="@style/Theme.GeoTagblue"
             android:exported="false" />
 
         <activity
-            android:name=".RegisterActivity"
+            android:name="com.example.smartify.RegisterActivity"
             android:exported="false" />
 
         <activity
-            android:name=".LoginActivity"
+            android:name="com.example.smartify.LoginActivity"
             android:exported="false" />
 
         <activity
-            android:name=".RoomSetupActivity"
+            android:name="com.example.smartify.RoomSetupActivity"
             android:theme="@style/Theme.GeoTagblue"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName="com.example.smartify.MainActivity" />
 
         <activity
-            android:name=".RoomInputActivity"
+            android:name="com.example.smartify.RoomInputActivity"
             android:theme="@style/Theme.GeoTagblue"
             android:exported="false" />
 
         <!-- SplashActivity is the LAUNCHER (entry point) -->
         <activity
-            android:name=".SplashActivity"
+            android:name="com.example.smartify.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -79,7 +79,7 @@
         </activity>
 
         <!-- MainActivity (the primary activity after Splash) -->
-        <activity android:name=".MainActivity" android:theme="@style/Theme.GeoTagblue" />
+        <activity android:name="com.example.smartify.MainActivity" android:theme="@style/Theme.GeoTagblue" />
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

@@ -1,4 +1,4 @@
-package com.example.geotag
+package com.example.smartify
 
 import android.content.Context
 import android.graphics.Canvas

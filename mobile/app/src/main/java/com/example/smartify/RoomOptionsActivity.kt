@@ -1,5 +1,6 @@
-package com.example.geotag
+package com.example.smartify
 
+import com.example.geotag.R
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent

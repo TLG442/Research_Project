@@ -1,4 +1,4 @@
-package com.example.geotag
+package com.example.smartify
 
 import android.content.Context
 import android.hardware.Sensor
@@ -14,7 +14,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
-import com.google.android.material.button.MaterialButton
+import com.example.geotag.R
 import kotlin.math.sqrt
 
 class RoomSetupActivity : AppCompatActivity(), SensorEventListener {

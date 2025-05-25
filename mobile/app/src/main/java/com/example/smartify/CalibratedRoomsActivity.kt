@@ -1,4 +1,4 @@
-package com.example.geotag
+package com.example.smartify
 
 import android.Manifest
 import android.content.Intent
@@ -10,6 +10,7 @@ import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
+import com.example.geotag.R
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.button.MaterialButton
