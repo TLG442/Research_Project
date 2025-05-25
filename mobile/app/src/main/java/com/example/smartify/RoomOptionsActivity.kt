@@ -283,7 +283,7 @@ class RoomOptionsActivity : AppCompatActivity() {
             actualRoomTextView.text = ""
             return
         }
-        currentRoomTextView.text = "Current Room not Found!"
+        currentRoomTextView.text = "Room not Found!"
         // Determine which room (if any) the current coordinates fall into
         var matchedRoomName: String? = null
         for (room in rooms) {
