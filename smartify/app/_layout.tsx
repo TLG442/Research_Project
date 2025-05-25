@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { supabase } from '../supabase/supabaseClient'; // Import the Supabase client
 import { useColorScheme } from '@/hooks/useColorScheme';
-
+import { AppProvider } from "@/context/AppContext";
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
@@ -67,6 +67,7 @@ export default function RootLayout() {
   }
 
   return (
+      <AppProvider>
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="loginScreen" options={{ headerShown: false }} />
@@ -75,5 +76,6 @@ export default function RootLayout() {
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
+    </AppProvider>
   );
 }
