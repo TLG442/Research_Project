@@ -1,3 +1,4 @@
+import { Stack } from "expo-router";
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -85,56 +86,59 @@ const ManageDevices = () => {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <Text style={styles.title}>Manage Your Devices</Text>
+    <>
+      <Stack.Screen options={{ title: "", headerBackTitleVisible: false }} />
+      <View style={[styles.container, { paddingTop: insets.top }]}>
+        <Text style={styles.title}>Manage Your Devices</Text>
 
-      <View style={styles.inputRow}>
-        <TextInput
-          style={styles.input}
-          placeholder="New device name"
-          value={newDevice}
-          onChangeText={setNewDevice}
+        <View style={styles.inputRow}>
+          <TextInput
+            style={styles.input}
+            placeholder="New device name"
+            value={newDevice}
+            onChangeText={setNewDevice}
+          />
+          <TouchableOpacity onPress={addDevice} style={styles.addButton}>
+            <Text style={{ color: "white" }}>Add</Text>
+          </TouchableOpacity>
+        </View>
+
+        <FlatList
+          data={devices}
+          keyExtractor={(_, i) => i.toString()}
+          renderItem={({ item, index }) => (
+            <View
+              style={[
+                styles.deviceItem,
+                {
+                  backgroundColor: item.isActive ? "#e0ffe0" : "#ffe0e0",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                },
+              ]}
+            >
+              <TouchableOpacity
+                onPress={() => toggleStatus(index)}
+                style={styles.deviceInfo}
+              >
+                <Text style={styles.deviceText}>
+                  {item.name} ({item.isActive ? "Active" : "Inactive"})
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => removeDevice(index)}>
+                <Text style={styles.deleteText}>Remove</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         />
-        <TouchableOpacity onPress={addDevice} style={styles.addButton}>
-          <Text style={{ color: "white" }}>Add</Text>
+
+        <TouchableOpacity style={styles.saveButton} onPress={saveDevices}>
+          <Text style={{ color: "white", fontWeight: "bold" }}>Save</Text>
         </TouchableOpacity>
       </View>
-
-      <FlatList
-        data={devices}
-        keyExtractor={(_, i) => i.toString()}
-        renderItem={({ item, index }) => (
-          <View
-            style={[
-              styles.deviceItem,
-              {
-                backgroundColor: item.isActive ? "#e0ffe0" : "#ffe0e0",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-              },
-            ]}
-          >
-            <TouchableOpacity
-              onPress={() => toggleStatus(index)}
-              style={styles.deviceInfo}
-            >
-              <Text style={styles.deviceText}>
-                {item.name} ({item.isActive ? "Active" : "Inactive"})
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => removeDevice(index)}>
-              <Text style={styles.deleteText}>Remove</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      />
-
-      <TouchableOpacity style={styles.saveButton} onPress={saveDevices}>
-        <Text style={{ color: "white", fontWeight: "bold" }}>Save</Text>
-      </TouchableOpacity>
-    </View>
+    </>
   );
 };
 
